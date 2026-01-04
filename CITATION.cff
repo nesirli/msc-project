@@ -1,0 +1,303 @@
+cff-version: 1.2.0
+message: "If you use this software, please cite it as below."
+type: software
+title: "Interpretable Deep-Learning and Ensemble Models for Predicting Multidrug Resistance in Klebsiella pneumoniae"
+version: 1.0.0
+date-released: 2024-12-30
+url: "https://github.com/NasirNesirli/kleb-amr-project"
+repository-code: "https://github.com/NasirNesirli/kleb-amr-project"
+abstract: "A comprehensive machine learning pipeline for predicting antimicrobial resistance (AMR) in Klebsiella pneumoniae using interpretable deep-learning and ensemble models. The pipeline integrates genomic features (AMR genes, SNPs, k-mer spectra) with advanced ML models (XGBoost, LightGBM, 1D-CNN, DNABERT) to achieve high-performance AMR prediction with cross-model interpretability analysis."
+keywords:
+  - "antimicrobial resistance"
+  - "Klebsiella pneumoniae"
+  - "machine learning"
+  - "deep learning"
+  - "genomics"
+  - "interpretability"
+  - "XGBoost"
+  - "LightGBM"
+  - "CNN"
+  - "BERT"
+  - "AMR prediction"
+  - "ensemble methods"
+license: MIT
+authors:
+  - family-names: "Nasirli"
+    given-names: "Nasir"
+    orcid: "https://orcid.org/0009-0005-3038-7781"
+    affiliation: "University of Birmingham"
+    email: "nxn202@alumni.bham.ac.uk"
+
+# Bioinformatics Tools Citations
+references:
+  # --- Workflow Management ---
+  - type: software
+    authors:
+      - family-names: "Mölder"
+        given-names: "Felix"
+    title: "Snakemake—a scalable bioinformatics workflow engine"
+    journal: "Bioinformatics"
+    year: 2012
+    volume: 28
+    issue: 19
+    pages: "2520-2522"
+    doi: "10.1093/bioinformatics/bts480"
+    
+  # --- Quality Control ---
+  - type: software
+    authors:
+      - family-names: "Andrews"
+        given-names: "Simon"
+    title: "FastQC: A quality control tool for high throughput sequence data"
+    url: "http://www.bioinformatics.babraham.ac.uk/projects/fastqc/"
+    year: 2010
+    
+  - type: software
+    authors:
+      - family-names: "Chen"
+        given-names: "Shifu"
+    title: "fastp: an ultra-fast all-in-one FASTQ preprocessor"
+    journal: "Bioinformatics"
+    year: 2018
+    volume: 34
+    issue: 17
+    pages: "i884-i890"
+    doi: "10.1093/bioinformatics/bty560"
+    
+  - type: software
+    authors:
+      - family-names: "Ewels"
+        given-names: "Philip"
+    title: "MultiQC: summarize analysis results for multiple tools and samples in a single report"
+    journal: "Bioinformatics"
+    year: 2016
+    volume: 32
+    issue: 19
+    pages: "3047-3048"
+    doi: "10.1093/bioinformatics/btw354"
+    
+  # --- Assembly ---
+  - type: software
+    authors:
+      - family-names: "Bankevich"
+        given-names: "Anton"
+    title: "SPAdes: a new genome assembly algorithm and its applications to single-cell sequencing"
+    journal: "Journal of Computational Biology"
+    year: 2012
+    volume: 19
+    issue: 5
+    pages: "455-477"
+    doi: "10.1089/cmb.2012.0021"
+    
+  - type: software
+    authors:
+      - family-names: "Gurevich"
+        given-names: "Alexey"
+    title: "QUAST: quality assessment tool for genome assemblies"
+    journal: "Bioinformatics"
+    year: 2013
+    volume: 29
+    issue: 8
+    pages: "1072-1075"
+    doi: "10.1093/bioinformatics/btt086"
+    
+  # --- Contamination Screening ---
+  - type: software
+    authors:
+      - family-names: "Wood"
+        given-names: "Derrick E."
+    title: "Improved metagenomic analysis with Kraken 2"
+    journal: "Genome Biology"
+    year: 2019
+    volume: 20
+    issue: 1
+    pages: "257"
+    doi: "10.1186/s13059-019-1891-0"
+    
+  # --- AMR Gene Detection ---
+  - type: software
+    authors:
+      - family-names: "Feldgarden"
+        given-names: "Michael"
+    title: "Validating the AMRFinder Tool and Resistance Gene Database by Using Antimicrobial Resistance Genotype-Phenotype Correlations in a Collection of Isolates"
+    journal: "Antimicrobial Agents and Chemotherapy"
+    year: 2019
+    volume: 63
+    issue: 11
+    pages: "e00483-19"
+    doi: "10.1128/AAC.00483-19"
+    
+  # --- Variant Calling ---
+  - type: software
+    authors:
+      - family-names: "Li"
+        given-names: "Heng"
+    title: "Fast and accurate short read alignment with Burrows-Wheeler transform"
+    journal: "Bioinformatics"
+    year: 2009
+    volume: 25
+    issue: 14
+    pages: "1754-1760"
+    doi: "10.1093/bioinformatics/btp324"
+    
+  - type: software
+    authors:
+      - family-names: "Danecek"
+        given-names: "Petr"
+    title: "Twelve years of SAMtools and BCFtools"
+    journal: "GigaScience"
+    year: 2021
+    volume: 10
+    issue: 2
+    pages: "giab008"
+    doi: "10.1093/gigascience/giab008"
+    
+  - type: software
+    authors:
+      - family-names: "Garrison"
+        given-names: "Erik"
+    title: "Haplotype-based variant detection from short-read sequencing"
+    journal: "arXiv preprint"
+    year: 2012
+    url: "https://arxiv.org/abs/1207.3907"
+    
+  # --- Machine Learning Libraries ---
+  - type: software
+    authors:
+      - family-names: "Chen"
+        given-names: "Tianqi"
+    title: "XGBoost: A Scalable Tree Boosting System"
+    journal: "Proceedings of the 22nd ACM SIGKDD International Conference on Knowledge Discovery and Data Mining"
+    year: 2016
+    pages: "785-794"
+    doi: "10.1145/2939672.2939785"
+    
+  - type: software
+    authors:
+      - family-names: "Ke"
+        given-names: "Guolin"
+    title: "LightGBM: A Highly Efficient Gradient Boosting Decision Tree"
+    journal: "Advances in Neural Information Processing Systems"
+    year: 2017
+    volume: 30
+    pages: "3146-3154"
+    
+  - type: software
+    authors:
+      - family-names: "Paszke"
+        given-names: "Adam"
+    title: "PyTorch: An Imperative Style, High-Performance Deep Learning Library"
+    journal: "Advances in Neural Information Processing Systems"
+    year: 2019
+    volume: 32
+    pages: "8024-8035"
+    
+  - type: software
+    authors:
+      - family-names: "Pedregosa"
+        given-names: "Fabian"
+    title: "Scikit-learn: Machine Learning in Python"
+    journal: "Journal of Machine Learning Research"
+    year: 2011
+    volume: 12
+    pages: "2825-2830"
+    
+  # --- Interpretability ---
+  - type: software
+    authors:
+      - family-names: "Lundberg"
+        given-names: "Scott M."
+    title: "A Unified Approach to Interpreting Model Predictions"
+    journal: "Advances in Neural Information Processing Systems"
+    year: 2017
+    volume: 30
+    pages: "4765-4774"
+    
+  # --- Batch Correction ---
+  - type: software
+    authors:
+      - family-names: "Johnson"
+        given-names: "W. Evan"
+    title: "Adjusting batch effects in microarray expression data using empirical Bayes methods"
+    journal: "Biostatistics"
+    year: 2007
+    volume: 8
+    issue: 1
+    pages: "118-127"
+    doi: "10.1093/biostatistics/kxj037"
+    
+  # --- Class Imbalance ---
+  - type: software
+    authors:
+      - family-names: "Chawla"
+        given-names: "Nitesh V."
+    title: "SMOTE: synthetic minority oversampling technique"
+    journal: "Journal of Artificial Intelligence Research"
+    year: 2002
+    volume: 16
+    pages: "321-357"
+    doi: "10.1613/jair.953"
+    
+  # --- Programming Languages ---
+  - type: software
+    authors:
+      - family-names: "Van Rossum"
+        given-names: "Guido"
+    title: "Python 3 Reference Manual"
+    year: 2009
+    publisher: "CreateSpace"
+    
+  - type: software
+    authors:
+      - family-names: "R Core Team"
+    title: "R: A language and environment for statistical computing"
+    year: 2023
+    publisher: "R Foundation for Statistical Computing"
+    url: "https://www.R-project.org/"
+
+# Key Research Papers (Example - update with your actual MSc references)
+related-research:
+  - type: article
+    authors:
+      - family-names: "Nguyen"
+        given-names: "Minh"
+    title: "Machine learning in antimicrobial resistance prediction: current applications and future directions"
+    journal: "Clinical Microbiology Reviews"
+    year: 2023
+    note: "Example citation - replace with your actual MSc references"
+    
+  - type: article
+    authors:
+      - family-names: "Kim"
+        given-names: "Jeongmin"
+    title: "Deep learning approaches for antimicrobial resistance prediction in bacterial pathogens"
+    journal: "Nature Communications"
+    year: 2023
+    note: "Example citation - replace with your actual MSc references"
+    
+  - type: article
+    authors:
+      - family-names: "Yang"
+        given-names: "Yang"
+    title: "Machine learning for antimicrobial resistance prediction: a systematic review"
+    journal: "Clinical Infectious Diseases"
+    year: 2022
+    note: "Example citation - replace with your actual MSc references"
+
+# Dataset Citations
+datasets:
+  - type: dataset
+    title: "NCBI Sequence Read Archive (SRA)"
+    authors:
+      - family-names: "Leinonen"
+        given-names: "Rasko"
+    journal: "Nucleic Acids Research"
+    year: 2011
+    volume: 39
+    pages: "D19-D21"
+    doi: "10.1093/nar/gkq1019"
+    note: "Source of genomic data"
+    
+  - type: dataset
+    title: "Klebsiella pneumoniae genomic surveillance data"
+    note: "Update with your specific dataset source and accession numbers"

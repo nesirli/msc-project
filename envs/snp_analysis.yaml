@@ -1,0 +1,16 @@
+name: snp_analysis
+channels:
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - python=3.11
+  - pandas=2.3.3
+  - numpy=2.3.5
+  - scipy=1.16.3
+  - wget=1.25.0
+  - bwa=0.7.18
+  - samtools=1.21
+  - bcftools=1.21
+  - bamtools=2.5.2
+  - freebayes=1.3.10

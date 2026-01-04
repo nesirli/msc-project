@@ -1,0 +1,16 @@
+name: cnn
+channels:
+  - conda-forge
+  - pytorch
+dependencies:
+  - python=3.11
+  - pandas=2.3.3
+  - numpy=2.3.5
+  - scikit-learn=1.6.1
+  - pytorch=2.5.1
+  - torchvision=0.20.1
+  - matplotlib=3.10.3
+  - seaborn=0.13.2
+  - biopython=1.85
+  - tqdm=4.67.1
+  - imbalanced-learn=0.12.4

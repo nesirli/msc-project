@@ -1,0 +1,9 @@
+name: preassembly_qc
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - fastqc=0.12.1
+  - multiqc=1.32
+  - fastp=1.0.1

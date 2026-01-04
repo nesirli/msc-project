@@ -1,0 +1,10 @@
+name: balanced_datasets
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pandas=2.3.3
+  - numpy=2.3.5
+  - scikit-learn=1.6.1
+  - imbalanced-learn=0.12.4
+  - matplotlib=3.10.3

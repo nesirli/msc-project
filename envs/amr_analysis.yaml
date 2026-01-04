@@ -1,0 +1,8 @@
+name: amr_analysis
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - pandas=2.3.3
+  - ncbi-amrfinderplus=4.0.23

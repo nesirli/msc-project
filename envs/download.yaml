@@ -1,0 +1,9 @@
+name: download
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - sra-tools=3.2.1
+  - pigz=2.8
+  - pandas=2.3.3

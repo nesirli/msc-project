@@ -1,0 +1,8 @@
+name: metadata
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - pandas=2.3.3
+  - entrez-direct=24.0

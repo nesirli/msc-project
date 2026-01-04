@@ -1,0 +1,9 @@
+name: assembly
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - spades=4.2.0
+  - seqtk=1.5
+  - pandas=2.3.3

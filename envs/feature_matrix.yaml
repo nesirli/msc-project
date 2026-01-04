@@ -1,0 +1,8 @@
+name: feature_matrix
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pandas=2.3.3
+  - numpy=2.3.5
+  - scipy=1.16.3

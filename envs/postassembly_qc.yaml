@@ -1,0 +1,13 @@
+name: postassembly_qc
+channels:
+  - conda-forge
+  - bioconda
+dependencies:
+  - python=3.11
+  - kraken2=2.1.6
+  - multiqc=1.32
+  - wget=1.25.0
+  - pandas=2.3.3
+  - pip
+  - pip:
+    - quast

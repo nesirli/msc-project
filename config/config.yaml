@@ -1,0 +1,120 @@
+# =============================================================================
+# Klebsiella pneumoniae AMR Prediction Pipeline Configuration
+# =============================================================================
+
+# --- Metadata ---
+metadata:
+  raw: "data/metadata.csv"
+  processed_train: "results/features/metadata_train_processed.csv"
+  processed_test: "results/features/metadata_test_processed.csv"
+  delimiter: ";"
+
+# --- Target Antibiotics ---
+antibiotics:
+  - amikacin
+  - ciprofloxacin
+  - ceftazidime
+  - meropenem
+
+# --- Data Splits ---
+splits:
+  train_cutoff: 2022          # Pre-2023 for training (5-fold CV)
+  test_years: [2023, 2024]    # 2023-24 for temporal hold-out
+
+# --- Reference Genome ---
+reference:
+  name: "Klebsiella_pneumoniae_HS11286"
+  accession: "GCF_000240185.1"
+  fasta: "data/reference/reference_genome"
+  url: "https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/000/240/185/GCF_000240185.1_ASM24018v2/GCF_000240185.1_ASM24018v2_genomic.fna.gz"
+
+# --- Kraken2 Database ---
+kraken2:
+  db_url: "https://genome-idx.s3.amazonaws.com/kraken/k2_standard_16gb_20240605.tar.gz"
+  db_path: "data/reference/kraken2_db"
+
+# --- Quality Control Thresholds ---
+qc:
+  min_read_length: 50
+  min_quality: 20
+  target_coverage: 100
+  min_contig_length: 500
+  max_contigs: 500
+  min_n50: 20000
+  contamination_threshold: 0.05
+
+# --- SNP Calling ---
+snp:
+  min_qual: 30
+  min_depth: 10
+  min_allele_freq: 0.9
+
+# --- Feature Selection ---
+feature_selection:
+  method: "chi2_mi"           # chi2_mi, boruta, or rfe
+  n_features: 500             # Top features to select
+  alpha: 0.05                 # Significance level for chi-square
+
+# --- Model Parameters ---
+models:
+  cv_folds: 5
+  random_state: 42
+  
+  xgboost:
+    n_estimators: [100, 200, 500]
+    max_depth: [3, 5, 7]
+    learning_rate: [0.01, 0.1, 0.3]
+    
+  lightgbm:
+    n_estimators: [100, 200, 500]
+    max_depth: [3, 5, 7]
+    learning_rate: [0.01, 0.1, 0.3]
+    num_leaves: [31, 63]  # Reduced from [31, 63, 127] for 33% faster training
+    
+  cnn:
+    kmer_size: 11
+    filters: [32, 64, 128]
+    kernel_size: [3, 5, 7]
+    dropout: 0.3
+    epochs: 100
+    batch_size: 32
+    
+  transformer:
+    read_length: 250
+    d_model: 128
+    n_heads: 4
+    n_layers: 2
+    dropout: 0.1
+    epochs: 50
+    batch_size: 16
+
+# --- Resource Allocation ---
+resources:
+  threads: 32  # Use all available cores for maximum performance
+  # memory_gb removed - SPAdes will use available RAM without limits
+  
+# --- Paths ---
+paths:
+  raw_data: "data/raw"
+  processed_data: "data/processed"
+  assemblies: "data/assemblies"
+  results: "results"
+  logs: "logs"
+
+# --- Output File Naming Conventions ---
+naming:
+  model_results: "{antibiotic}_results.json"
+  interpretability: "{antibiotic}_interpretability.json"
+  consensus_features: "{antibiotic}_consensus_features.csv"
+  batch_report: "{antibiotic}_batch_report.json"
+  feature_matrix: "{antibiotic}_{split}_features.csv"
+  final_dataset: "{antibiotic}_{split}_final.csv"
+  
+# --- Standard Output Fields ---
+output_format:
+  model_results:
+    required_fields: ["cv_results", "test_results", "cv_summary", "success_criteria"]
+    metrics: ["f1", "balanced_accuracy", "auc", "confusion_matrix"]
+  interpretability:
+    required_fields: ["consensus_features", "statistical_comparison", "motif_analysis"]
+    feature_types: ["AMR_genes", "SNP_variants", "k_mers", "sequence_motifs"]

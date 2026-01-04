@@ -1,0 +1,19 @@
+name: transformer
+channels:
+  - conda-forge
+  - pytorch
+  - huggingface
+dependencies:
+  - python=3.11
+  - pandas=2.3.3
+  - numpy=2.3.5
+  - scikit-learn=1.6.1
+  - pytorch=2.5.1
+  - matplotlib=3.10.3
+  - seaborn=0.13.2
+  - biopython=1.85
+  - tqdm=4.67.1
+  - imbalanced-learn=0.14.0
+  - transformers=4.46.0
+  - tokenizers=0.20.0
+  - einops=0.8.0
