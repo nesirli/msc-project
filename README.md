@@ -182,7 +182,6 @@ kleb-amr-project/
 2. **Expected metadata format:**
    ```csv
    #Run;Collection date;AST phenotypes;Isolate;Location;Isolation source
-  SRR30762255;2005;amikacin=R,amoxicillin=R,cefotaxime=R,ceftazidime-avibactam=R,ceftazidime=R,ciprofloxacin=R,colistin=S,gentamicin=R,imipenem=R,meropenem=R,nitrofurantoin=S,tigecycline=SDD,trimethoprim-sulfamethoxazole=R;PDT002391512.1;Tunisia: Sfax;blood
    ```
 
 ### Pipeline Configuration
