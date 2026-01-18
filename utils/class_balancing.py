@@ -83,7 +83,7 @@ def get_imbalance_strategy(y_train):
             "smote_k_neighbors": max(1, min(2, minority_count - 1)),
             "under_sample_ratio": 0.3  # Keep 30% of majority class
         }
-        print("🚨 Strategy: Hybrid extreme (SMOTE+ENN + focal loss + ensemble)")
+        print("Strategy: Hybrid extreme (SMOTE+ENN + focal loss + ensemble)")
     
     return strategy
 
@@ -225,9 +225,9 @@ def validate_class_balance_consistency():
     print(f"Deep ratio: {deep_ratio:.3f}")
     
     if abs(tree_ratio - expected_ratio) < 0.1 and abs(deep_ratio - 1.0) < 0.1:
-        print("✅ Class balancing is consistent across models")
+        print("Class balancing is consistent across models")
     else:
-        print("❌ Class balancing inconsistency detected!")
+        print("Class balancing inconsistency detected!")
     
     return tree_weight, deep_weights
 

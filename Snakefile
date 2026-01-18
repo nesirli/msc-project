@@ -1,5 +1,5 @@
 """
-Master Snakefile for Klebsiella pneumoniae AMR Prediction Pipeline (19 Stages)
+Master Snakefile for Klebsiella pneumoniae AMR Prediction Pipeline (20 Stages)
 Run full pipeline: snakemake --use-conda --cores 8
 Run specific step: snakemake --use-conda --cores 8 -s workflow/rules/01_metadata.smk
 """

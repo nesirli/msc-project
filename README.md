@@ -1,342 +1,306 @@
-# Interpretable Deep-Learning and Ensemble Models for Predicting Multidrug Resistance in Klebsiella pneumoniae
+# Interpretable Deep-Learning and Ensemble Models for Predicting Multidrug Resistance in *Klebsiella pneumoniae*
 
-[![MIT License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-[![Python 3.9+](https://img.shields.io/badge/Python-3.9+-blue.svg)](https://www.python.org/)
-[![Snakemake](https://img.shields.io/badge/Snakemake-7.0+-blue.svg)](https://snakemake.readthedocs.io/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Snakemake](https://img.shields.io/badge/snakemake-≥7.32-brightgreen.svg)](https://snakemake.readthedocs.io)
+[![Python](https://img.shields.io/badge/python-3.9-blue.svg)](https://www.python.org/)
 
-A comprehensive, reproducible pipeline for predicting antimicrobial resistance in *Klebsiella pneumoniae* using interpretable machine learning and deep learning models.
+A comprehensive, reproducible Snakemake workflow for genomic prediction of antimicrobial resistance (AMR) in *Klebsiella pneumoniae* using tree-based ensemble methods and deep learning architectures with temporal validation and interpretability analysis.
 
-## 🎯 Overview
+## 📋 Overview
 
-This project develops an interpretable, genome-based pipeline that predicts phenotypic resistance to four key antibiotics:
-- **Amikacin** (aminoglycoside)
-- **Ciprofloxacin** (fluoroquinolone)  
-- **Ceftazidime** (3rd-generation cephalosporin)
-- **Meropenem** (carbapenem)
+This pipeline implements a 20-stage workflow comparing four machine learning architectures (XGBoost, LightGBM, 1D CNN, DNABERT-2) for predicting resistance to four critical antibiotic classes:
+- **Carbapenems** (meropenem)
+- **Cephalosporins** (ceftazidime)
+- **Fluoroquinolones** (ciprofloxacin)
+- **Aminoglycosides** (amikacin)
 
-### Key Features
+**Key Features:**
+- ✅ Rigorous temporal validation (pre-2023 training → 2023-2024 testing)
+- ✅ SHAP-based interpretability analysis
+- ✅ Comprehensive quality control pipeline
+- ✅ Automated feature engineering and selection
+- ✅ Full reproducibility with conda environments
+- ✅ Optimized for high-performance computing
 
-- **5 Model Types**: XGBoost, LightGBM, 1D-CNN, Sequence CNN, DNABERT-2
-- **Interpretable Results**: Consensus feature importance + motif-level analysis
-- **Geographic-Temporal CV**: Prevents data leakage using location-year grouping
-- **Standardized Evaluation**: Consistent metrics with statistical testing
-- **Reproducible Workflow**: Snakemake pipeline with 19 organized steps
+## 🎓 Citation
+
+If you use this workflow in your research, please cite:
+
+```bibtex
+@mastersthesis{nasirli2025kleb,
+  author  = {Nasirli, Nasir},
+  title   = {Interpretable Deep-Learning and Ensemble Models for Predicting 
+             Multidrug Resistance in Klebsiella pneumoniae},
+  school  = {University of Birmingham},
+  year    = {2025},
+  type    = {MSc Bioinformatics Dissertation}
+}
+```
+
+See `CITATION.cff` for machine-readable citation metadata.
 
 ## 🚀 Quick Start
 
 ### Prerequisites
 
-#### Option 1: Docker (Recommended)
-- **Docker** (20.10+) and **Docker Compose** (v2.0+)
-- **8+ GB RAM** (16+ GB recommended for deep learning)
-- **4+ CPU cores** (8+ recommended)
+**Hardware Requirements:**
+- **Recommended:** 32 vCPUs, 128GB RAM, 1TB SSD (Hetzner server or equivalent)
+- **Runtime:** 2-3 days for complete pipeline on recommended hardware
+- **Storage:** ~700GB for metadata and results
 
-#### Option 2: Google Cloud Platform
-- **GCP Account** with billing enabled
-- **gcloud CLI** installed and authenticated
-- **Docker** (for local building)
-
-#### Option 3: Native Installation
-- **Miniconda/Anaconda** (for environment management)
-- **8+ GB RAM** (16+ GB recommended for deep learning)
-- **Mac M3 Pro or equivalent** (original development environment)
+**Software:**
+- [Conda](https://docs.conda.io/en/latest/miniconda.html) or [Mamba](https://mamba.readthedocs.io/) (recommended)
+- [Snakemake](https://snakemake.readthedocs.io/) ≥7.32
+- Git
 
 ### Installation
 
-#### 🐳 Docker Installation (Recommended)
-
 ```bash
 # Clone repository
-git clone https://github.com/your-username/amr-kpneumoniae-prediction.git
-cd amr-kpneumoniae-prediction
+git clone https://github.com/NasirNesirli/kleb-amr-project.git
+cd kleb-amr-project
 
-# Quick start with Make
-make build          # Build container
-make test           # Test setup
-make run            # Run pipeline
-
-# Or use scripts directly
-./scripts/docker/build.sh
-./scripts/docker/run.sh --dry-run
+# Install Snakemake (if not already installed)
+conda create -n snakemake -c conda-forge -c bioconda snakemake=7.32
+conda activate snakemake
 ```
 
-#### ☁️ Google Cloud Platform
+### Running the Pipeline
 
+**Full Pipeline (20 stages):**
 ```bash
-# Deploy to Cloud Run (serverless)
-./scripts/gcp/deploy-cloudrun.sh --project YOUR_PROJECT_ID --allow-unauthenticated
+# Maximum parallelization strategy (recommended for 32 vCPU)
+bash run_max_parallel.sh
 
-# Or setup GKE cluster
-./scripts/gcp/setup-gke.sh --project YOUR_PROJECT_ID
-
-# Use Cloud Build for CI/CD
-gcloud builds submit --config scripts/gcp/cloudbuild.yaml
+# OR standard Snakemake execution
+snakemake --use-conda --cores 32 --jobs 16
 ```
 
-#### 🏠 Native Installation
-
+**Individual Stages:**
 ```bash
-# Clone repository
-git clone https://github.com/your-username/amr-kpneumoniae-prediction.git
-cd amr-kpneumoniae-prediction
-
-# Install Snakemake
-conda install -c bioconda -c conda-forge snakemake>=7.0.0
-
-# Download reference data (optional - included in pipeline)
-# Data will be automatically downloaded during first run
+# Run specific stage independently
+snakemake --use-conda --cores 32 -s rules/01_metadata.smk metadata_all
+snakemake --use-conda --cores 32 -s rules/06_amr_analysis.smk amr_analysis_all
 ```
 
-### Basic Usage
-
-#### Docker Commands
-
+**Partial Workflows:**
 ```bash
-# Run full pipeline
-make run
+# Preprocessing only (stages 1-5)
+snakemake --use-conda --cores 32 preprocess
 
-# Interactive shell
-make shell
+# Feature extraction (stages 6-10)
+snakemake --use-conda --cores 32 feature_extraction
 
-# Specific stages
-make tree-models     # Tree models only
-make dl-models       # Deep learning only
-make interpret       # Interpretability analysis
+# Tree models only (stages 14-15)
+snakemake --use-conda --cores 32 tree_models
 
-# Custom parameters
-./scripts/docker/run.sh --cores 8 --memory 16G --target preprocess
+# Deep learning models (stages 16-18)
+snakemake --use-conda --cores 32 dl_models
+
+# Interpretability analysis (stage 19)
+snakemake --use-conda --cores 32 interpretability
 ```
 
-#### Google Cloud Commands
+## 📊 Pipeline Stages
 
-```bash
-# Cloud Run deployment
-curl "https://your-service-url" -H "Content-Type: application/json" \
-     -d '{"target": "tree_models", "cores": 4}'
+The workflow consists of 20 interconnected stages:
 
-# GKE execution
-kubectl exec -it deployment/amr-pipeline -n amr-pipeline -- \
-        snakemake --cores 4 tree_models
+### Data Acquisition & QC (Stages 1-5)
+1. **Metadata Processing** - Curate *K. pneumoniae* isolate metadata from NCBI
+2. **Download** - Retrieve short-read sequencing data
+3. **Pre-assembly QC** - FastQC, fastp trimming, quality filtering
+4. **Assembly** - SPAdes genome assembly
+5. **Post-assembly QC** - QUAST metrics, Kraken2 contamination screening
+
+### Feature Engineering (Stages 6-10)
+6. **AMR Analysis** - AMRFinderPlus resistance gene annotation
+7. **SNP Analysis** - Snippy core-genome variant calling
+8. **Feature Matrix** - Construct unified feature matrix
+9. **Feature Selection** - Dimensionality reduction (1.2M → 325 features)
+10. **Batch Correction** - Geographic-temporal batch effect removal
+
+### Dataset Preparation (Stages 11-13)
+11. **Training Data Preparation** - Temporal train/test splitting
+12. **K-mer Datasets** - Tokenized sequences for CNN models
+13. **DNABERT Datasets** - DNA transformer input preparation
+
+### Model Training (Stages 14-18)
+14. **XGBoost** - Gradient boosting with SHAP interpretability
+15. **LightGBM** - Light gradient boosting machine
+16. **1D CNN** - Convolutional neural network on k-mer spectra
+17. **Sequence CNN** - CNN on raw DNA sequences
+18. **DNABERT** - Fine-tuned DNA transformer model
+
+### Analysis (Stages 19-20)
+19. **Interpretability Analysis** - SHAP feature importance, biological validation
+20. **Ensemble Analysis** - Model combination and comparative evaluation
+
+## 📁 Project Structure
+
 ```
-
-#### Native Commands
-
-```bash
-# Run full pipeline (all 19 steps)
-snakemake --use-conda --cores 8
-
-# Run specific stages
-snakemake --use-conda --cores 8 preprocess        # Steps 1-5: Data preprocessing
-snakemake --use-conda --cores 8 tree_models       # Steps 14-15: Tree models only
-snakemake --use-conda --cores 8 dl_models         # Steps 16-18: Deep learning only
-snakemake --use-conda --cores 8 interpretability  # Step 19: Analysis only
-
-# Run for specific antibiotic
-snakemake --use-conda --cores 8 results/models/xgboost/amikacin_results.json
+kleb-amr-project/
+├── Snakefile                    # Master workflow orchestrator
+├── run_max_parallel.sh          # Optimized parallel execution script
+├── config/
+│   └── config.yaml              # Pipeline configuration
+├── rules/                       # Individual Snakemake rule modules (20 stages)
+│   ├── 01_metadata.smk
+│   ├── 02_download.smk
+│   └── ...
+├── scripts/                     # Python implementation scripts
+│   ├── 01_metadata.py
+│   ├── 14_train_xgboost.py
+│   └── ...
+├── envs/                        # Conda environment specifications
+│   ├── assembly.yaml
+│   ├── xgboost.yaml
+│   └── ...
+├── utils/                       # Shared utility modules
+│   ├── cross_validation.py
+│   ├── evaluation.py
+│   └── ...
+├── data/
+│   └── metadata.csv             # User-provided NCBI metadata
+├── results/                     # Auto-generated outputs
+│   ├── qc/                      # Quality control reports
+│   ├── features/                # Feature matrices
+│   ├── models/                  # Trained model results
+│   ├── interpretability/        # SHAP analysis outputs
+│   └── ensemble/                # Ensemble evaluation
+└── thesis/                      # Dissertation and documentation
 ```
-
-## 📊 Pipeline Architecture
-
-### 19-Stage Workflow
-
-| Stage | Description | Output |
-|-------|-------------|--------|
-| **1-5** | **Data Preprocessing** | QC, assembly, contamination screening |
-| **6-8** | **Feature Extraction** | AMR genes, SNPs, k-mers |
-| **9-10** | **Feature Engineering** | Selection, batch correction |
-| **11-13** | **Data Preparation** | Train/test splits, k-mer/DNABERT datasets |
-| **14-15** | **Tree Models** | XGBoost, LightGBM with nested CV |
-| **16-18** | **Deep Learning** | 1D-CNN, Sequence CNN, DNABERT-2 |
-| **19** | **Interpretability** | Cross-model analysis, motifs, statistics |
-
-### Model Specifications
-
-| Model | Input Features | Architecture | Key Parameters |
-|-------|---------------|--------------|----------------|
-| **XGBoost** | AMR genes + SNPs (179 features) | Gradient boosting | Geographic-temporal CV, class weights |
-| **LightGBM** | AMR genes + SNPs (179 features) | Gradient boosting | Consistent class balancing |
-| **1D-CNN** | K-mer spectra (11-mers) | Conv1D + Dense | Class-weighted loss |
-| **Sequence CNN** | Raw DNA sequences | Conv1D on one-hot | Geographic-temporal grouping |
-| **DNABERT-2** | 250bp read tokens | Transformer (117M params) | Fine-tuned from HuggingFace |
-
-### Cross-Validation Strategy
-
-- **Geographic-Temporal Grouping**: Samples from same location-year stay together
-- **Prevents Data Leakage**: Accounts for epidemiological structure
-- **5-Fold CV**: Consistent across all models
-- **Fallback**: Stratified CV when insufficient groups
-
-### Class Imbalance Handling
-
-- **Tree Models**: `scale_pos_weight` (neg_count/pos_count)
-- **Deep Models**: `class_weight` in loss function
-- **Consistent Ratios**: Shared utilities ensure fair model comparison
-
-## 📈 Results and Evaluation
-
-### Success Criteria
-- **Primary**: F1 score ≥ 0.85 per antibiotic
-- **Secondary**: Balanced accuracy ≥ 0.85
-- **Analysis**: Discrepancy analysis if balanced accuracy meets threshold but F1 doesn't
-
-### Statistical Testing
-- **DeLong's Test**: ROC curve comparison between models
-- **Bootstrap CI**: Confidence intervals for performance metrics
-- **Bonferroni Correction**: Multiple comparison adjustment
-- **Friedman Test**: Non-parametric model comparison
-
-### Interpretability Analysis
-- **Consensus Features**: Important features across multiple models
-- **Motif Analysis**: Sequence patterns from CNN filters and DNABERT attention
-- **Cross-Model Agreement**: Jaccard similarity of important features
-- **Clinical Relevance**: Alignment with known resistance mechanisms
 
 ## 🔧 Configuration
 
-### Key Configuration Files
+### Data Preparation
+
+1. **Download metadata from NCBI Pathogen Detection:**
+   - Visit: https://www.ncbi.nlm.nih.gov/pathogens/isolates/#taxgroup_name:%22Klebsiella%20pneumoniae%22
+   - Filter for isolates with AMR susceptibility data
+   - Download as CSV to `data/metadata.csv`
+
+2. **Expected metadata format:**
+   ```csv
+   Isolate,Collection_Date,AMR_Phenotypes,SRA_Accession,...
+   PDT000123456,2023-01-15,meropenem:R;ciprofloxacin:S,...
+   ```
+
+### Pipeline Configuration
+
+The `config/config.yaml` file contains default settings optimized for the workflow:
 
 ```yaml
-# config/config.yaml
-antibiotics: [amikacin, ciprofloxacin, ceftazidime, meropenem]
+antibiotics:
+  - meropenem
+  - ciprofloxacin
+  - ceftazidime
+  - amikacin
 
-splits:
-  train_cutoff: 2022          # Pre-2023 for training
-  test_years: [2023, 2024]    # 2023-24 for temporal validation
-
-models:
-  cv_folds: 5
-  random_state: 42
-  
-feature_selection:
-  method: "chi2_mi"
-  n_features: 500
-  alpha: 0.05
+temporal_split_year: 2023
+threads:
+  assembly: 16
+  mapping: 4
+  annotation: 4
 ```
 
-### Environment Management
+**Note:** Default configuration is optimized for the study design. Modification is typically not required.
 
-The pipeline uses 16 separate conda environments to handle package conflicts:
+## 📈 Key Results
 
-- `bioinformatics tools`: SRA download, assembly, QC
-- `ML/DL environments`: Separate environments for each model type
-- `Analysis tools`: Feature selection, interpretability, batch correction
+Based on temporal validation (2023-2024 test set):
 
-## 📁 Output Structure
+| Model | Meropenem | Ciprofloxacin | Ceftazidime | Amikacin |
+|-------|-----------|---------------|-------------|----------|
+| **XGBoost** | **0.824** | 0.787 | 0.800 | 0.500 |
+| **LightGBM** | 0.583 | 0.827 | **0.857*** | 0.400 |
+| 1D CNN | 0.091 | 0.825 | 0.778 | 0.000 |
+| Sequence CNN | 0.095 | 0.369 | 0.536 | 0.013 |
+| DNABERT-2 | 0.111 | 0.191 | 0.338 | 0.000 |
 
-```
-results/
-├── qc/                          # Quality control reports
-├── features/                    # Processed feature matrices
-│   ├── tree_models/            # Features for XGBoost/LightGBM
-│   └── deep_models/            # K-mer and DNABERT datasets
-├── models/                     # Trained model results
-│   ├── xgboost/
-│   ├── lightgbm/
-│   ├── cnn/
-│   ├── sequence_cnn/
-│   └── dnabert/
-└── interpretability/           # Cross-model analysis
-    ├── consensus_features.csv
-    ├── motif_analysis.json
-    └── statistical_comparison.json
-```
+*Values shown are F1-scores. **Only model-antibiotic combination meeting F1≥0.85 clinical threshold.*
 
-## 🧬 Data Sources
+**Key Findings:**
+- Tree-based models consistently outperform deep learning approaches
+- SHAP analysis identifies biologically meaningful resistance determinants
+- Temporal validation reveals robust generalization for tree models
+- Dataset size limitations may impact deep learning performance
 
-- **NCBI Pathogen Detection**: Public *K. pneumoniae* genomes
-- **Temporal Split**: Pre-2023 training, 2023-24 testing
-- **AST Phenotypes**: Extracted from metadata
-- **Quality Filters**: Paired-end reads, contamination screening
+## 🧬 Interpretability Insights
 
-## 📊 Shared Utilities
+SHAP analysis of XGBoost meropenem model revealed top predictive features:
 
-### Core Modules
+1. `gene_parC_S80I` - Fluoroquinolone resistance mutation
+2. `gene_oqxB19` - RND efflux pump component
+3. `gene_aac(6')-Ib` - Aminoglycoside acetyltransferase
+4. `gene_blaKPC-3` - KPC carbapenemase
+5. `gene_ompK36_D135DGD` - Porin modification
 
-- **`utils/cross_validation.py`**: Geographic-temporal CV strategy
-- **`utils/class_balancing.py`**: Consistent class weighting
-- **`utils/evaluation.py`**: Standardized metrics and success criteria
-- **`utils/motif_analysis.py`**: Sequence motif extraction and analysis
+These features align with established *K. pneumoniae* resistance mechanisms, validating model biological interpretability.
 
-### Benefits
-- **Eliminates 1800+ lines** of duplicate code
-- **Ensures consistency** across all 5 models
-- **Standardizes evaluation** with automatic success checking
-- **Maintainable codebase** with shared utilities
+## 🛠️ Troubleshooting
 
-## 🚀 Deployment Options
+### Independent Stage Execution
 
-### 📦 Container Deployment
-
-The pipeline is fully containerized and supports multiple deployment scenarios:
-
-| Platform | Use Case | Command | Documentation |
-|----------|----------|---------|---------------|
-| **Local Docker** | Development, testing | `make build && make run` | Built-in |
-| **Google Cloud Run** | Serverless, auto-scaling | `./scripts/gcp/deploy-cloudrun.sh` | [Docker Deployment Guide](docs/DOCKER_DEPLOYMENT.md) |
-| **Google Kubernetes Engine** | Large-scale, GPU support | `./scripts/gcp/setup-gke.sh` | [Docker Deployment Guide](docs/DOCKER_DEPLOYMENT.md) |
-| **AWS/Azure** | Multi-cloud deployment | Standard Docker containers | [Docker Deployment Guide](docs/DOCKER_DEPLOYMENT.md) |
-| **HPC/Singularity** | Academic clusters | `singularity build amr.sif docker://...` | [Docker Deployment Guide](docs/DOCKER_DEPLOYMENT.md) |
-
-### 🎯 Quick Deployment Examples
+Each Snakemake rule file can be executed independently for debugging:
 
 ```bash
-# Local development
-make build && make shell
+# Example: Run only AMR analysis
+snakemake --use-conda --cores 8 -s rules/06_amr_analysis.smk amr_analysis_all
 
-# Google Cloud serverless
-./scripts/gcp/deploy-cloudrun.sh --project my-project --allow-unauthenticated
-
-# Production with CI/CD
-gcloud builds submit --config scripts/gcp/cloudbuild.yaml \
-  --substitutions=_DEPLOY_CLOUDRUN=true
+# Example: Run only XGBoost training
+snakemake --use-conda --cores 32 -s rules/14_train_xgboost.smk train_xgboost_all
 ```
 
-### 💡 Deployment Features
+### Common Issues
 
-- **Multi-stage builds** for optimized container size
-- **Health checks** and monitoring integration
-- **Persistent storage** support for large datasets
-- **Auto-scaling** based on resource usage
-- **CI/CD integration** with Cloud Build
-- **Cost optimization** with preemptible instances
+**Memory errors during assembly:**
+- Reduce parallel jobs: `--jobs 1` or `--jobs 2`
+- SPAdes requires ~16GB per assembly
 
-## 🔬 Research Questions
+**Conda environment conflicts:**
+- Use Mamba for faster dependency resolution: `snakemake --use-conda --conda-frontend mamba`
 
-1. **Model Comparison**: How do the 5 models compare in F1 and balanced accuracy?
-2. **Temporal Validation**: Do pre-2023 models retain ≥0.85 F1 on 2023-24 isolates?
-3. **Interpretability**: Which genes, SNPs, or sequence motifs drive predictions?
+**Storage limitations:**
+- Intermediate files can be large; ensure adequate disk space
+- Consider cleaning up intermediate assemblies after QC
 
-## 📚 Citations
+## 📚 Dependencies
 
-Based on genomic ML best practices from:
-- **Statistical Testing**: DeLong et al. (1988), Demšar (2006)
-- **Cross-Validation**: Genomic prediction literature
-- **Deep Learning**: DNABERT-2 (Zhou et al.)
-- **Class Imbalance**: Chen & Guestrin (XGBoost), Ke et al. (LightGBM)
+All computational dependencies are managed through conda environments in `envs/`:
 
-## 🤝 Contributing
+**Core Tools:**
+- FastQC, fastp (QC)
+- SPAdes (assembly)
+- QUAST, Kraken2 (assembly QC)
+- AMRFinderPlus (resistance annotation)
+- Snippy, BWA (variant calling)
+- scikit-learn, XGBoost, LightGBM (machine learning)
+- PyTorch, Transformers (deep learning)
+- SHAP (interpretability)
 
-This project provides a reproducible template for AMR genomics studies. Contributions welcome:
+See individual YAML files for complete version specifications.
 
-1. **Fork** the repository
-2. **Create** feature branch (`git checkout -b feature/improvement`)
-3. **Commit** changes (`git commit -m 'Add improvement'`)
-4. **Push** to branch (`git push origin feature/improvement`)
-5. **Open** Pull Request
 
 ## 📄 License
 
-Released under the [MIT License](LICENSE). Free for academic and commercial use.
+This project is licensed under the MIT License - see the LICENSE file for details.
 
-## 🙏 Acknowledgments
+## 👤 Author
 
-- **NCBI Pathogen Detection** for public genomic data
-- **HuggingFace** for DNABERT-2 model hosting
-- **Snakemake** community for workflow management
-- **Genomic ML** literature for methodological guidance
+**Nasir Nasirli**  
+MSc Bioinformatics, University of Birmingham  
+Student ID: 2684202
+
+## 🔗 Links
+
+- **GitHub:** https://github.com/NasirNesirli/kleb-amr-project
+- **NCBI Pathogen Detection:** https://www.ncbi.nlm.nih.gov/pathogens/
+- **Dissertation:** See `thesis/final-dissertation.pdf`
+
+## 📖 References
+
+Complete references available in `thesis/final-dissertation.pdf`.
 
 ---
 
-**🔬 For questions or collaboration**: [Contact Information]  
-**📈 Latest Results**: Check `results/interpretability/` for current performance  
-**🚀 Pipeline Status**: Run `snakemake --dry-run` to see next steps
+**Acknowledgments:** This work was conducted as part of the MSc Bioinformatics program at the University of Birmingham School of Biosciences (2025).

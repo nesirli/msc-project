@@ -342,12 +342,12 @@ def validate_pipeline_outputs(results_dir: str = "results",
             print(f"  ... and {len(report['missing_files']) - 10} more")
     
     if report['format_issues']:
-        print(f"\n⚠️  Format Issues ({len(report['format_issues'])}):")
+        print(f"\n  Format Issues ({len(report['format_issues'])}):")
         for issue in report['format_issues']:
             print(f"  - {issue}")
     
     if not report['missing_files'] and not report['format_issues']:
-        print("\n✅ All outputs validated successfully!")
+        print("\n All outputs validated successfully!")
     
     return report
 
