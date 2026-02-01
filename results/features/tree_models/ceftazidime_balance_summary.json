@@ -1,0 +1,29 @@
+{
+  "antibiotic": "ceftazidime",
+  "original_samples": 1044,
+  "balanced_samples": 1044,
+  "test_samples": 74,
+  "original_distribution": {
+    "1": 533,
+    "0": 511
+  },
+  "balanced_distribution": {
+    "1": 533,
+    "0": 511
+  },
+  "balance_method": "class_weights_only",
+  "imbalance_strategy": {
+    "method": "class_weights_only",
+    "ratio": 1.0430528375733856,
+    "details": "mild_imbalance",
+    "sampling": null,
+    "use_focal_loss": false
+  },
+  "balance_applied": false,
+  "features_count": 279,
+  "class_weights": {
+    "1": 0.9793621013133208,
+    "0": 1.0215264187866928
+  },
+  "scale_pos_weight": 0.9587242026266416
+}

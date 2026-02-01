@@ -1,0 +1,29 @@
+{
+  "antibiotic": "meropenem",
+  "original_samples": 417,
+  "balanced_samples": 417,
+  "test_samples": 99,
+  "original_distribution": {
+    "1": 238,
+    "0": 179
+  },
+  "balanced_distribution": {
+    "1": 238,
+    "0": 179
+  },
+  "balance_method": "class_weights_only",
+  "imbalance_strategy": {
+    "method": "class_weights_only",
+    "ratio": 1.329608938547486,
+    "details": "mild_imbalance",
+    "sampling": null,
+    "use_focal_loss": false
+  },
+  "balance_applied": false,
+  "features_count": 325,
+  "class_weights": {
+    "1": 0.8760504201680672,
+    "0": 1.164804469273743
+  },
+  "scale_pos_weight": 0.7521008403361344
+}

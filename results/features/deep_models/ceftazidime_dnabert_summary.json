@@ -1,0 +1,32 @@
+{
+  "antibiotic": "ceftazidime",
+  "max_seq_len": 512,
+  "n_reads_per_sample": 1000,
+  "kmer_size": 6,
+  "sequences_per_sample": 3,
+  "vocab_size": 4101,
+  "tokenization": "kmer_overlapping",
+  "special_tokens": [
+    "[PAD]",
+    "[UNK]",
+    "[CLS]",
+    "[SEP]",
+    "[MASK]"
+  ],
+  "real_train_samples": 3105,
+  "balanced_train_samples": 3105,
+  "test_samples": 222,
+  "real_class_distribution": {
+    "0": 1533,
+    "1": 1572
+  },
+  "balanced_class_distribution": {
+    "0": 1533,
+    "1": 1572
+  },
+  "test_class_distribution": {
+    "0": 45,
+    "1": 177
+  },
+  "note": "Created with DNABERT-1 style k-mer tokenization, multiple sequences per sample, attention masks"
+}

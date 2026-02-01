@@ -1,0 +1,32 @@
+{
+  "antibiotic": "meropenem",
+  "max_seq_len": 512,
+  "n_reads_per_sample": 1000,
+  "kmer_size": 6,
+  "sequences_per_sample": 3,
+  "vocab_size": 4101,
+  "tokenization": "kmer_overlapping",
+  "special_tokens": [
+    "[PAD]",
+    "[UNK]",
+    "[CLS]",
+    "[SEP]",
+    "[MASK]"
+  ],
+  "real_train_samples": 1251,
+  "balanced_train_samples": 1251,
+  "test_samples": 297,
+  "real_class_distribution": {
+    "0": 537,
+    "1": 714
+  },
+  "balanced_class_distribution": {
+    "0": 537,
+    "1": 714
+  },
+  "test_class_distribution": {
+    "0": 273,
+    "1": 24
+  },
+  "note": "Created with DNABERT-1 style k-mer tokenization, multiple sequences per sample, attention masks"
+}

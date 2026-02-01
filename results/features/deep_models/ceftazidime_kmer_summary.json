@@ -1,0 +1,23 @@
+{
+  "antibiotic": "ceftazidime",
+  "k": 11,
+  "n_reads_per_sample": 10000,
+  "selected_kmers": 10000,
+  "total_observed_kmers": 4188782,
+  "real_train_samples": 1044,
+  "balanced_train_samples": 1044,
+  "test_samples": 74,
+  "real_class_distribution": {
+    "0": 511,
+    "1": 533
+  },
+  "balanced_class_distribution": {
+    "0": 511,
+    "1": 533
+  },
+  "test_class_distribution": {
+    "0": 15,
+    "1": 59
+  },
+  "note": "Created from balanced tree model selection, then balanced again for deep learning"
+}
