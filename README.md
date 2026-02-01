@@ -101,6 +101,21 @@ snakemake --use-conda --cores 32 dl_models
 snakemake --use-conda --cores 32 interpretability
 ```
 
+### Running Tests
+
+```bash
+# Install test dependencies
+pip install -r requirements-dev.txt
+
+# Run all tests
+python -m pytest tests/ -v
+
+# Run with coverage report
+python -m pytest tests/ --cov=utils --cov-report=term-missing
+```
+
+See [TESTING.md](TESTING.md) for detailed testing documentation.
+
 ## 📊 Pipeline Stages
 
 The workflow consists of 20 interconnected stages:

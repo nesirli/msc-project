@@ -80,9 +80,10 @@ def evaluate_cross_validation_fold(y_true, y_pred, y_proba=None, fold_idx=0):
     metrics = compute_comprehensive_metrics(y_true, y_pred, y_proba)
     metrics['fold'] = fold_idx
     
+    auc_str = f"{metrics['auc']:.3f}" if metrics['auc'] is not None else 'N/A'
     print(f"Fold {fold_idx + 1}: F1={metrics['f1']:.3f}, "
           f"Balanced Acc={metrics['balanced_accuracy']:.3f}, "
-          f"AUC={metrics['auc']:.3f if metrics['auc'] is not None else 'N/A'}")
+          f"AUC={auc_str}")
     
     return metrics
 
