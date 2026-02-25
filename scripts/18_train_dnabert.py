@@ -12,7 +12,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader, WeightedRandomSampler
-from sklearn.model_selection import StratifiedKFold, BaseCrossValidator
+from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import (
     f1_score, balanced_accuracy_score, roc_auc_score,
     classification_report, confusion_matrix
@@ -32,82 +32,12 @@ import sys
 
 warnings.filterwarnings('ignore')
 
-# Configure PyTorch parallelism based on Snakemake threads
-def configure_pytorch_threads():
-    """Configure PyTorch to use all available threads from Snakemake."""
-    try:
-        num_threads = snakemake.threads
-        print(f"Configuring PyTorch to use {num_threads} threads")
+# Import shared DL utilities
+from utils.dl_training import configure_pytorch_threads, compute_class_weights_tensor, get_device
 
-        # Set PyTorch intraop parallelism (within operations)
-        torch.set_num_threads(num_threads)
-
-        # Set environment variables for various backends
-        os.environ['OMP_NUM_THREADS'] = str(num_threads)
-        os.environ['MKL_NUM_THREADS'] = str(num_threads)
-        os.environ['NUMEXPR_NUM_THREADS'] = str(num_threads)
-
-        # Calculate num_workers for DataLoader (leave some threads for computation)
-        # Use approximately 1/4 of threads for data loading, rest for computation
-        num_workers = max(1, num_threads // 4)
-
-        return num_workers
-    except (NameError, AttributeError):
-        # Fallback if not running under Snakemake
-        print("Warning: Not running under Snakemake, using default thread settings")
-        return 2
-
-class GeographicTemporalKFold(BaseCrossValidator):
-    """
-    K-Fold cross-validation that respects geographic and temporal structure.
-    Ensures strains from the same location-year combination are not split across training/validation.
-    """
-    
-    def __init__(self, n_splits=5, shuffle=True, random_state=None):
-        self.n_splits = n_splits
-        self.shuffle = shuffle
-        self.random_state = random_state
-    
-    def split(self, X, y=None, groups=None):
-        if groups is None:
-            raise ValueError("groups parameter (location-year combinations) is required for geographic-temporal CV")
-        
-        groups = np.array(groups)
-        y = np.array(y) if y is not None else None
-        
-        # Get unique groups (location-year combinations)
-        unique_groups = np.unique(groups)
-        n_groups = len(unique_groups)
-        
-        if n_groups < self.n_splits:
-            raise ValueError(f"Number of location-year groups ({n_groups}) < n_splits ({self.n_splits})")
-        
-        # Set random state for reproducibility
-        rng = np.random.RandomState(self.random_state)
-        
-        # Shuffle groups if requested
-        if self.shuffle:
-            rng.shuffle(unique_groups)
-        
-        # Simple round-robin assignment for small datasets
-        group_fold_assignments = {}
-        for i, group in enumerate(unique_groups):
-            group_fold_assignments[group] = i % self.n_splits
-        
-        # Generate train/test splits
-        for fold in range(self.n_splits):
-            test_groups = [group for group, assigned_fold in group_fold_assignments.items() 
-                          if assigned_fold == fold]
-            train_groups = [group for group in unique_groups if group not in test_groups]
-            
-            # Get indices
-            test_idx = np.concatenate([np.where(groups == group)[0] for group in test_groups])
-            train_idx = np.concatenate([np.where(groups == group)[0] for group in train_groups])
-            
-            yield train_idx, test_idx
-    
-    def get_n_splits(self, X=None, y=None, groups=None):
-        return self.n_splits
+# Import shared cross-validation
+from utils.cross_validation import GeographicTemporalKFold, get_cross_validator
+from utils.class_balancing import get_deep_model_weights
 
 class DNASequenceDataset(Dataset):
     """PyTorch dataset for DNABERT sequences."""
@@ -150,7 +80,8 @@ class DNASequenceDataset(Dataset):
 class DNABERT2Classifier(nn.Module):
     """
     DNABERT-2 fine-tuning wrapper for AMR prediction.
-    Uses a simplified approach to avoid config conflicts.
+    Attempts to load pretrained DNABERT-2-117M from HuggingFace.
+    Falls back to training from scratch if pretrained model is unavailable.
     """
     
     def __init__(self, model_name="zhihan1996/DNABERT-2-117M", num_classes=2, dropout=0.1):
@@ -158,29 +89,42 @@ class DNABERT2Classifier(nn.Module):
         
         print(f"Setting up DNA BERT model for fine-tuning...")
         
-        # Use a DNA-specific BERT model with proper vocab size
         from transformers import BertModel, BertConfig
         
-        # Create a BERT config optimized for DNA sequences
-        # We'll update the vocab size after creating the tokenizer
-        config = BertConfig(
-            vocab_size=9,  # Exact size for our DNA tokenizer (A,T,G,C,N + special tokens)
-            hidden_size=256,  # Smaller for efficiency
-            num_hidden_layers=6,  # Use 6 layers for faster training
-            num_attention_heads=8,
-            intermediate_size=1024,  # Smaller for efficiency
-            max_position_embeddings=512,
-            hidden_dropout_prob=dropout,
-            attention_probs_dropout_prob=dropout,
-            type_vocab_size=2,  # For DNA sequences
-            layer_norm_eps=1e-12
-        )
-        
-        # Initialize DNA-optimized BERT model
-        print("Initializing DNA-optimized BERT model for fine-tuning...")
-        self.dnabert = BertModel(config)
+        # Try to load pretrained DNABERT-2 model
         self.is_pretrained = False
-        print(f"Created DNA BERT model with vocab_size={config.vocab_size}, hidden_size={config.hidden_size}")
+        try:
+            print(f"Attempting to load pretrained model: {model_name}")
+            self.dnabert = AutoModel.from_pretrained(
+                model_name,
+                trust_remote_code=True,
+                hidden_dropout_prob=dropout,
+                attention_probs_dropout_prob=dropout
+            )
+            self.is_pretrained = True
+            print(f"Successfully loaded pretrained {model_name}")
+            print(f"  Hidden size: {self.dnabert.config.hidden_size}")
+            print(f"  Num layers: {self.dnabert.config.num_hidden_layers}")
+        except Exception as e:
+            print(f"WARNING: Could not load pretrained {model_name}: {e}")
+            print("Falling back to randomly-initialized small BERT model.")
+            print("NOTE: Results will reflect training from scratch, NOT transfer learning.")
+            
+            # Fallback: small BERT initialized from scratch
+            config = BertConfig(
+                vocab_size=9,  # For SimpleDNATokenizer (A,T,G,C,N + special tokens)
+                hidden_size=256,
+                num_hidden_layers=6,
+                num_attention_heads=8,
+                intermediate_size=1024,
+                max_position_embeddings=512,
+                hidden_dropout_prob=dropout,
+                attention_probs_dropout_prob=dropout,
+                type_vocab_size=2,
+                layer_norm_eps=1e-12
+            )
+            self.dnabert = BertModel(config)
+            print(f"Created from-scratch BERT: vocab={config.vocab_size}, hidden={config.hidden_size}")
         
         # Get hidden size from model config
         self.hidden_size = self.dnabert.config.hidden_size
@@ -356,8 +300,7 @@ def extract_attention_patterns(model, dataloader, device, dnabert_tokenizer, max
 
 def cross_validation(sequences, labels, dnabert_tokenizer, location_year_groups=None, cv_folds=5, random_state=42, **model_params):
     """Perform cross-validation with optional phylogenetic awareness."""
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(f"Using device: {device}")
+    device = get_device()
     
     # Use phylogenetic CV if SNP cluster info available
     if location_year_groups is not None:
@@ -382,8 +325,8 @@ def cross_validation(sequences, labels, dnabert_tokenizer, location_year_groups=
         if location_year_groups is not None:
             loc_year_tr = location_year_groups[train_idx]
             loc_year_val = location_year_groups[val_idx]
-            print(f"Fold {fold + 1}: Train clusters={len(np.unique(snp_tr))}, "
-                  f"Val clusters={len(np.unique(snp_val))}")
+            print(f"Fold {fold + 1}: Train clusters={len(np.unique(loc_year_tr))}, "
+                  f"Val clusters={len(np.unique(loc_year_val))}")
             print(f"  Train class dist: {Counter(labels[train_idx])}, Val class dist: {Counter(labels[val_idx])}")
         
         # Split data
@@ -499,7 +442,7 @@ def cross_validation(sequences, labels, dnabert_tokenizer, location_year_groups=
 
 def train_final_model(train_sequences, train_labels, test_sequences, test_labels, dnabert_tokenizer, **model_params):
     """Train final model on all training data."""
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = get_device()
     
     # Create datasets
     train_dataset = DNASequenceDataset(
@@ -572,7 +515,10 @@ def train_final_model(train_sequences, train_labels, test_sequences, test_labels
         'balanced_accuracy': balanced_accuracy_score(test_labels, test_preds),
         'auc': roc_auc_score(test_labels, test_probs),
         'confusion_matrix': confusion_matrix(test_labels, test_preds).tolist(),
-        'classification_report': classification_report(test_labels, test_preds, output_dict=True)
+        'classification_report': classification_report(test_labels, test_preds, output_dict=True),
+        '_y_true': test_labels.tolist(),
+        '_y_pred': test_preds.tolist(),
+        '_y_proba': test_probs.tolist()
     }
     
     # Extract attention patterns
@@ -901,7 +847,7 @@ def main():
             train_sequences, labels, test_sequences, test_labels, dnabert_tokenizer, **model_params
         )
     
-    # Save results
+    # Save results with per-sample predictions for ensemble analysis
     results = {
         'cv_results': cv_results,
         'test_results': test_results,
@@ -910,8 +856,14 @@ def main():
         'cv_mean_auc': np.mean([r['auc'] for r in cv_results]),
         'cv_std_auc': np.std([r['auc'] for r in cv_results]),
         'model_params': model_params,
-        'model_type': 'DNABERT-2-117M',
+        'model_type': 'DNABERT-2-117M' if final_model.is_pretrained else 'BERT-from-scratch',
+        'pretrained_weights_used': final_model.is_pretrained,
         'max_length': 512,
+        'test_predictions': {
+            'y_true': test_results.get('_y_true', []),
+            'y_pred': test_results.get('_y_pred', []),
+            'y_proba': test_results.get('_y_proba', [])
+        },
         'attention_analysis': {
             'n_samples_analyzed': len(attention_data),
             'avg_attention_resistant': None,  # Would compute from attention_data

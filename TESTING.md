@@ -1,88 +1,76 @@
 # Unit Testing Summary
 
 ## Overview
-This project includes comprehensive unit tests for critical utility functions in the AMR prediction pipeline.
+
+This project includes comprehensive unit tests for all utility modules in the AMR prediction pipeline. Tests cover classification metrics, class balancing, cross-validation, deep-learning helpers, ensemble methods, error handling, motif analysis, and output validation.
 
 ## Test Coverage
 
 ### Test Files
-- **`tests/test_evaluation.py`** - 8 tests for evaluation metrics computation
-- **`tests/test_class_balancing.py`** - 10 tests for class imbalance handling strategies
-- **`tests/test_cross_validation.py`** - 8 tests for geographic-temporal cross-validation
-- **`tests/conftest.py`** - Shared pytest fixtures
 
-**Total:** 26 passing tests ✅
+| File | Tests | Description |
+|------|------:|-------------|
+| `tests/test_class_balancing.py` | 10 | Class imbalance handling strategies |
+| `tests/test_cross_validation.py` | 8 | Geographic-temporal cross-validation |
+| `tests/test_dl_training.py` | 6 | PyTorch device detection, class weights, threading |
+| `tests/test_ensemble_methods.py` | 12 | Ensemble init, prediction, stacking, evaluation |
+| `tests/test_error_handling.py` | 41 | Exception hierarchy, logging, validators, safe math |
+| `tests/test_evaluation.py` | 8 | Classification metrics & fold evaluation |
+| `tests/test_motif_analysis.py` | 25 | k-mer extraction, attention regions, cross-model analysis |
+| `tests/test_output_validation.py` | 15 | Result standardisation, filename templates, consistency |
+| `tests/conftest.py` | — | Shared pytest fixtures |
 
-## Test Results
-
-```
-tests/test_evaluation.py::TestComputeComprehensiveMetrics::test_perfect_predictions_binary PASSED
-tests/test_evaluation.py::TestComputeComprehensiveMetrics::test_random_predictions_binary PASSED
-tests/test_evaluation.py::TestComputeComprehensiveMetrics::test_with_probabilities PASSED
-tests/test_evaluation.py::TestComputeComprehensiveMetrics::test_confusion_matrix_format PASSED
-tests/test_evaluation.py::TestComputeComprehensiveMetrics::test_zero_division_handling PASSED
-tests/test_evaluation.py::TestComputeComprehensiveMetrics::test_multiclass_metrics PASSED
-tests/test_evaluation.py::TestEvaluateCrossValidationFold::test_fold_evaluation PASSED
-tests/test_evaluation.py::TestEvaluateCrossValidationFold::test_fold_index_tracking PASSED
-
-tests/test_class_balancing.py::TestGetImbalanceStrategy::test_balanced_classes PASSED
-tests/test_class_balancing.py::TestGetImbalanceStrategy::test_mild_imbalance PASSED
-tests/test_class_balancing.py::TestGetImbalanceStrategy::test_moderate_imbalance PASSED
-tests/test_class_balancing.py::TestGetImbalanceStrategy::test_high_imbalance PASSED
-tests/test_class_balancing.py::TestGetImbalanceStrategy::test_extreme_imbalance PASSED
-tests/test_class_balancing.py::TestGetImbalanceStrategy::test_single_class PASSED
-tests/test_class_balancing.py::TestGetImbalanceStrategy::test_multiclass_imbalance PASSED
-tests/test_class_balancing.py::TestGetImbalanceStrategy::test_strategy_contains_required_keys PASSED
-tests/test_class_balancing.py::TestGetImbalanceStrategy::test_imbalance_ratio_calculation PASSED
-tests/test_class_balancing.py::TestGetImbalanceStrategy::test_smote_k_neighbors_bounded PASSED
-
-tests/test_cross_validation.py::TestGeographicTemporalKFold::test_initialization PASSED
-tests/test_cross_validation.py::TestGeographicTemporalKFold::test_split_without_groups_raises_error PASSED
-tests/test_cross_validation.py::TestGeographicTemporalKFold::test_basic_split_structure PASSED
-tests/test_cross_validation.py::TestGeographicTemporalKFold::test_no_group_overlap PASSED
-tests/test_cross_validation.py::TestGeographicTemporalKFold::test_all_samples_used PASSED
-tests/test_cross_validation.py::TestGeographicTemporalKFold::test_insufficient_groups_raises_error PASSED
-tests/test_cross_validation.py::TestGeographicTemporalKFold::test_reproducibility_with_random_state PASSED
-tests/test_cross_validation.py::TestGeographicTemporalKFold::test_shuffle_parameter PASSED
-
-======================== 26 passed in 0.76s =========================
-```
+**Total: 135 passing tests** ✅
 
 ## Code Coverage
 
-| Module | Coverage | Key Functions Tested |
-|--------|----------|----------------------|
-| `evaluation.py` | 35% | `compute_comprehensive_metrics()`, `evaluate_cross_validation_fold()` |
-| `class_balancing.py` | 33% | `get_imbalance_strategy()` |
-| `cross_validation.py` | 67% | `GeographicTemporalKFold.split()` |
-| **Overall** | **9%** | Core data handling & ML utilities |
+| Module | Stmts | Miss | Coverage |
+|--------|------:|-----:|---------:|
+| `__init__.py` | 0 | 0 | 100% |
+| `class_balancing.py` | 103 | 69 | 33% |
+| `cross_validation.py` | 49 | 16 | 67% |
+| `dl_training.py` | 53 | 15 | 72% |
+| `ensemble_methods.py` | 203 | 69 | 66% |
+| `error_handling.py` | 221 | 36 | 84% |
+| `evaluation.py` | 83 | 54 | 35% |
+| `motif_analysis.py` | 199 | 66 | 67% |
+| `output_validation.py` | 154 | 65 | 58% |
+| **TOTAL** | **1065** | **390** | **63%** |
 
 ## Running Tests
 
-### Run all tests
+### Native (venv)
+
 ```bash
+# Run all tests
 python -m pytest tests/ -v
-```
 
-### Run specific test file
-```bash
+# Run a specific test file
 python -m pytest tests/test_evaluation.py -v
-```
 
-### Run with coverage report
-```bash
+# Run with coverage
 python -m pytest tests/ --cov=utils --cov-report=term-missing --cov-report=html
+
+# View HTML coverage report (macOS)
+open htmlcov/index.html
 ```
 
-### View HTML coverage report
+### Docker
+
 ```bash
-open htmlcov/index.html
+# Run full test suite inside Docker
+docker compose run --rm test
+
+# Run with coverage inside Docker
+docker compose run --rm test python -m pytest tests/ --cov=utils --cov-report=term-missing
 ```
 
 ## Bugs Found & Fixed
 
-### 1. **evaluation.py - Print Format Error** ✅
-**Issue:** F-string formatting error in `evaluate_cross_validation_fold()` when AUC is None
+### 1. **evaluation.py — Print Format Error** ✅
+
+F-string formatting error in `evaluate_cross_validation_fold()` when AUC is `None`:
+
 ```python
 # Before (BROKEN)
 f"AUC={metrics['auc']:.3f if metrics['auc'] is not None else 'N/A'}"
@@ -92,57 +80,99 @@ auc_str = f"{metrics['auc']:.3f}" if metrics['auc'] is not None else 'N/A'
 print(f"AUC={auc_str}")
 ```
 
-## Test Organization
+## Test Organisation
 
-### Test Fixtures (conftest.py)
-- `sample_binary_data` - Binary classification data
-- `sample_multiclass_data` - Multi-class classification data
-- `sample_imbalanced_data` - Imbalanced class distribution
-- `sample_predictions` - Prediction examples
+### Fixtures (`conftest.py`)
 
-### Configuration (pytest.ini)
-- Strict markers for test organization
+- `sample_binary_data` — Binary classification arrays
+- `sample_multiclass_data` — Multi-class classification arrays
+- `sample_imbalanced_data` — Imbalanced class distribution
+- `sample_predictions` — Prediction examples
+
+### Configuration (`pytest.ini`)
+
+- Strict markers for test categorisation
 - Short traceback format
-- Color output enabled
+- Colour output enabled
 
 ## What's Tested
 
-### ✅ Data Validation
-- Shape mismatch detection
-- NaN/Inf value handling
-- Single class edge cases
-
-### ✅ Classification Metrics
-- F1-score computation
-- Balanced accuracy
-- AUC-ROC calculation
+### ✅ Classification Metrics (`test_evaluation.py`)
+- F1-score, balanced accuracy, AUC-ROC
 - Confusion matrix structure
 - Multi-class metrics
+- Zero-division edge cases
 
-### ✅ Cross-Validation
+### ✅ Imbalance Handling (`test_class_balancing.py`)
+- Strategy selection by imbalance ratio
+- SMOTE neighbour parameter bounding
+- Single-class and extreme-imbalance edge cases
+- Multi-class support
+
+### ✅ Cross-Validation (`test_cross_validation.py`)
 - Geographic-temporal group isolation
 - Reproducibility with random state
-- Proper train/test split
+- Train/test split integrity
 - All samples used across folds
 
-### ✅ Imbalance Handling
-- Strategy selection by imbalance ratio
-- SMOTE neighbor parameter bounding
-- Edge cases (single class, extreme imbalance)
-- Multi-class support
+### ✅ Deep-Learning Helpers (`test_dl_training.py`)
+- CUDA / MPS / CPU device detection
+- Class weight tensor computation
+- PyTorch thread configuration
+- Fold logging
+
+### ✅ Ensemble Methods (`test_ensemble_methods.py`)
+- Simple average, weighted average, majority vote
+- Invalid method handling
+- Missing model graceful skipping
+- Stacking meta-learner training
+- End-to-end ensemble from saved JSON results
+
+### ✅ Error Handling (`test_error_handling.py`)
+- Custom exception hierarchy (PipelineError, ValidationError, DataError, ModelError)
+- Logger setup (console + file)
+- `handle_errors` decorator (success, re-raise, keyboard interrupt)
+- File / directory / DataFrame / config validators
+- Feature matrix validation
+- Safe division and log operations
+- Memory usage warnings
+- Progress tracker lifecycle
+- ErrorContext context manager
+
+### ✅ Motif Analysis (`test_motif_analysis.py`)
+- k-mer motif extraction (basic, empty, non-DNA filtering)
+- Weight-to-motif mapping
+- Meaningful motif filtering (short, single-nucleotide, valid)
+- CNN motif extraction (no conv layers edge case)
+- Attention region detection
+- Sequence similarity calculation
+- Cross-model motif analysis
+- Consensus motif ranking
+
+### ✅ Output Validation (`test_output_validation.py`)
+- Model result standardisation & missing field warnings
+- Interpretability result standardisation
+- Filename template rendering & fallback
+- Output directory creation
+- JSON serialisation (including NumPy types)
+- Feature matrix column renaming
+- Pipeline consistency checks
 
 ## Future Improvements
 
-1. **Expand Coverage** - Add tests for data preprocessing scripts
-2. **Integration Tests** - Test pipeline end-to-end
-3. **Performance Tests** - Benchmark model training
-4. **CI/CD Integration** - Automated testing with GitHub Actions
+1. **Expand coverage** — `class_balancing.py` (33%) and `evaluation.py` (35%) have the most room for growth
+2. **Integration tests** — Test Snakemake rule DAG connectivity end-to-end
+3. **Performance tests** — Benchmark model training throughput
+4. **CI/CD integration** — GitHub Actions with `docker compose run --rm test`
 
 ## Dependencies
+
 - pytest ≥ 7.4.3
 - pytest-cov
+- pytest-xdist
 - numpy
 - scikit-learn
 - imbalanced-learn
+- torch (CPU)
 
-See `requirements-dev.txt` for complete list.
+See `requirements-dev.txt` for the complete list.

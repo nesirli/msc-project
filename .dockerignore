@@ -1,0 +1,39 @@
+# Build context exclusions for Docker
+.git
+.gitignore
+.venv
+.snakemake
+.pytest_cache
+__pycache__
+*.pyc
+htmlcov/
+.coverage
+*.egg-info
+
+# Large data (mounted as volumes instead)
+data/raw/
+data/processed/
+data/assemblies/
+data/reference/
+
+# Results (mounted as volumes instead)
+results/
+logs/
+
+# IDE / Editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Documentation (not needed in image)
+thesis/
+CITATION.cff
+TESTING.md
+*.md
+!README.md

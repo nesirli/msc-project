@@ -59,6 +59,7 @@ feature_selection:
 models:
   cv_folds: 5
   random_state: 42
+  use_geographic_cv: true  # Enable geographic-temporal cross-validation for DL models
   
   xgboost:
     n_estimators: [100, 200, 500]

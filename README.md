@@ -45,15 +45,61 @@ See `CITATION.cff` for machine-readable citation metadata.
 
 **Hardware Requirements:**
 - **Recommended:** 32 vCPUs, 128GB RAM, 1TB SSD (Hetzner server or equivalent)
+- **Minimum (Mac/laptop):** 8 cores, 16GB RAM (reduced parallelism, longer runtime)
 - **Runtime:** 2-3 days for complete pipeline on recommended hardware
 - **Storage:** ~700GB for metadata and results
 
-**Software:**
-- [Conda](https://docs.conda.io/en/latest/miniconda.html) or [Mamba](https://mamba.readthedocs.io/) (recommended)
-- [Snakemake](https://snakemake.readthedocs.io/) ≥7.32
-- Git
+**Software (choose one):**
+- **Option A — Docker** (recommended, works on any OS including Mac ARM64):
+  - [Docker Desktop](https://www.docker.com/products/docker-desktop/) ≥24.0
+  - [Docker Compose](https://docs.docker.com/compose/) V2
+- **Option B — Native Conda:**
+  - [Conda](https://docs.conda.io/en/latest/miniconda.html) or [Mamba](https://mamba.readthedocs.io/) (recommended)
+  - [Snakemake](https://snakemake.readthedocs.io/) ≥7.32
+  - Git
 
-### Installation
+### Option A: Docker (Recommended)
+
+Docker eliminates all dependency/platform issues — bioinformatics tools like SPAdes, freebayes, and kraken2 run in a Linux x86_64 container regardless of host OS.
+
+```bash
+# Clone repository
+git clone https://github.com/NasirNesirli/kleb-amr-project.git
+cd kleb-amr-project
+
+# Build the image (first time takes ~30-60 min to create all conda envs)
+docker compose build
+
+# Run the full pipeline
+docker compose up pipeline
+
+# Or run individual stages
+docker compose up preprocess     # Stages 1-5: QC + assembly
+docker compose up train          # Stages 14-18: all models
+
+# Interactive shell inside the container
+docker compose run --rm dev
+
+# Run tests
+docker compose run --rm test
+```
+
+**Adjusting resources (edit `.env` or pass as environment):**
+```bash
+# Use 4 threads and limit to 32 GB RAM
+THREADS=4 DOCKER_MEMORY=32G docker compose up pipeline
+
+# On Mac with 8 cores:
+THREADS=8 DOCKER_CPUS=8 DOCKER_MEMORY=16G docker compose up pipeline
+```
+
+**GPU training (NVIDIA only):**
+```bash
+# Requires nvidia-container-toolkit
+docker compose --profile gpu up train-gpu
+```
+
+### Option B: Native Installation (Conda)
 
 ```bash
 # Clone repository

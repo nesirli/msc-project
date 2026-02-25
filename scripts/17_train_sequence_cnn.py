@@ -10,7 +10,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.utils.data import Dataset, DataLoader
-from sklearn.model_selection import StratifiedKFold, BaseCrossValidator
+from sklearn.model_selection import StratifiedKFold
 from sklearn.metrics import (
     f1_score, balanced_accuracy_score, roc_auc_score, 
     classification_report, confusion_matrix
@@ -39,82 +39,12 @@ except ImportError:
     print("Warning: BioPython not available. Install with: conda install -c bioconda biopython")
     sys.exit(1)
 
-# Configure PyTorch parallelism based on Snakemake threads
-def configure_pytorch_threads():
-    """Configure PyTorch to use all available threads from Snakemake."""
-    try:
-        num_threads = snakemake.threads
-        print(f"Configuring PyTorch to use {num_threads} threads")
+# Import shared DL utilities
+from utils.dl_training import configure_pytorch_threads, compute_class_weights_tensor, get_device
 
-        # Set PyTorch intraop parallelism (within operations)
-        torch.set_num_threads(num_threads)
-
-        # Set environment variables for various backends
-        os.environ['OMP_NUM_THREADS'] = str(num_threads)
-        os.environ['MKL_NUM_THREADS'] = str(num_threads)
-        os.environ['NUMEXPR_NUM_THREADS'] = str(num_threads)
-
-        # Calculate num_workers for DataLoader (leave some threads for computation)
-        # Use approximately 1/4 of threads for data loading, rest for computation
-        num_workers = max(1, num_threads // 4)
-
-        return num_workers
-    except (NameError, AttributeError):
-        # Fallback if not running under Snakemake
-        print("Warning: Not running under Snakemake, using default thread settings")
-        return 2
-
-class GeographicTemporalKFold(BaseCrossValidator):
-    """
-    K-Fold cross-validation that respects geographic and temporal structure.
-    Ensures strains from the same location-year combination are not split across training/validation.
-    """
-    
-    def __init__(self, n_splits=5, shuffle=True, random_state=None):
-        self.n_splits = n_splits
-        self.shuffle = shuffle
-        self.random_state = random_state
-    
-    def split(self, X, y=None, groups=None):
-        if groups is None:
-            raise ValueError("groups parameter (location-year combinations) is required for geographic-temporal CV")
-        
-        groups = np.array(groups)
-        y = np.array(y) if y is not None else None
-        
-        # Get unique groups (location-year combinations)
-        unique_groups = np.unique(groups)
-        n_groups = len(unique_groups)
-        
-        if n_groups < self.n_splits:
-            raise ValueError(f"Number of location-year groups ({n_groups}) < n_splits ({self.n_splits})")
-        
-        # Set random state for reproducibility
-        rng = np.random.RandomState(self.random_state)
-        
-        # Shuffle groups if requested
-        if self.shuffle:
-            rng.shuffle(unique_groups)
-        
-        # Simple round-robin assignment for small datasets
-        group_fold_assignments = {}
-        for i, group in enumerate(unique_groups):
-            group_fold_assignments[group] = i % self.n_splits
-        
-        # Generate train/test splits
-        for fold in range(self.n_splits):
-            test_groups = [group for group, assigned_fold in group_fold_assignments.items() 
-                          if assigned_fold == fold]
-            train_groups = [group for group in unique_groups if group not in test_groups]
-            
-            # Get indices
-            test_idx = np.concatenate([np.where(groups == group)[0] for group in test_groups])
-            train_idx = np.concatenate([np.where(groups == group)[0] for group in train_groups])
-            
-            yield train_idx, test_idx
-    
-    def get_n_splits(self, X=None, y=None, groups=None):
-        return self.n_splits
+# Import shared cross-validation
+from utils.cross_validation import GeographicTemporalKFold, get_cross_validator
+from utils.class_balancing import get_deep_model_weights
 
 class SequenceDataset(Dataset):
     """PyTorch dataset for one-hot encoded DNA sequences."""
@@ -388,8 +318,7 @@ def evaluate(model, dataloader, device):
 
 def cross_validation(X, y, sample_ids, location_year_groups=None, cv_folds=5, random_state=42, num_workers=2, **model_params):
     """Perform cross-validation with sequence data."""
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(f"Using device: {device}")
+    device = get_device()
     print(f"DataLoader workers: {num_workers}")
     
     # For sequence data, we need to split by original sample IDs to avoid data leakage
@@ -836,7 +765,7 @@ def main():
     
     # Train final model on all training data
     print(f"\nTraining final model...")
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    device = get_device()
     
     train_dataset = SequenceDataset(X_train, y_train)
     test_dataset = SequenceDataset(X_test, y_test)
@@ -899,7 +828,7 @@ def main():
         'classification_report': classification_report(test_labels, test_preds, output_dict=True, zero_division=0)
     }
     
-    # Save results
+    # Save results with per-sample predictions for ensemble analysis
     results = {
         'cv_results': cv_results,
         'test_results': test_results,
@@ -911,7 +840,12 @@ def main():
         'sequence_length': seq_length,
         'n_train_sequences': X_train.shape[0],
         'n_test_sequences': X_test.shape[0],
-        'architecture': 'Raw sequence CNN with one-hot encoding'
+        'architecture': 'Raw sequence CNN with one-hot encoding',
+        'test_predictions': {
+            'y_true': test_labels.tolist(),
+            'y_pred': test_preds.tolist(),
+            'y_proba': test_probs.tolist()
+        }
     }
     
     # Ensure output directory exists

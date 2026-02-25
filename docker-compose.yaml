@@ -1,0 +1,155 @@
+# =============================================================================
+# Docker Compose for Klebsiella pneumoniae AMR Pipeline
+# =============================================================================
+#
+# Usage:
+#   docker compose up                    # Run full pipeline
+#   docker compose run --rm pipeline bash # Interactive shell
+#   docker compose run --rm test         # Run tests
+#   docker compose --profile gpu up      # With GPU support (NVIDIA only)
+#
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Main pipeline service
+  # ---------------------------------------------------------------------------
+  pipeline:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+    image: kleb-amr-pipeline:latest
+    container_name: kleb-amr-pipeline
+
+    volumes:
+      # Persistent data volumes - survive container restarts
+      - ./data:/app/data
+      - ./results:/app/results
+      - ./logs:/app/logs
+      # Mount config for easy editing without rebuild
+      - ./config/config.yaml:/app/config/config.yaml
+
+    environment:
+      - THREADS=${THREADS:-8}
+      # PyTorch settings
+      - OMP_NUM_THREADS=${THREADS:-8}
+      - MKL_NUM_THREADS=${THREADS:-8}
+      - NUMEXPR_NUM_THREADS=${THREADS:-8}
+      # Disable PyTorch MPS in container (not available in Linux)
+      - PYTORCH_ENABLE_MPS_FALLBACK=0
+
+    # Resource limits - adjust based on host machine
+    deploy:
+      resources:
+        limits:
+          cpus: "${DOCKER_CPUS:-8}"
+          memory: "${DOCKER_MEMORY:-64G}"
+
+    # Default: run the full pipeline
+    command: >
+      snakemake --use-conda --cores ${THREADS:-8} --jobs 4
+      --rerun-incomplete --keep-going
+
+  # ---------------------------------------------------------------------------
+  # Run tests
+  # ---------------------------------------------------------------------------
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+    image: kleb-amr-pipeline:latest
+    volumes:
+      - ./tests:/app/tests
+      - ./utils:/app/utils
+    command: >
+      bash -c "pip install -r requirements-dev.txt &&
+               python -m pytest tests/ -v --tb=short"
+
+  # ---------------------------------------------------------------------------
+  # Interactive development shell
+  # ---------------------------------------------------------------------------
+  dev:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+    image: kleb-amr-pipeline:latest
+    volumes:
+      - .:/app
+    stdin_open: true
+    tty: true
+    command: bash
+
+  # ---------------------------------------------------------------------------
+  # Run individual pipeline stages
+  # ---------------------------------------------------------------------------
+  preprocess:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+    image: kleb-amr-pipeline:latest
+    volumes:
+      - ./data:/app/data
+      - ./results:/app/results
+      - ./logs:/app/logs
+      - ./config/config.yaml:/app/config/config.yaml
+    environment:
+      - THREADS=${THREADS:-8}
+    command: >
+      snakemake --use-conda --cores ${THREADS:-8} --jobs 2 preprocess
+
+  train:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+    image: kleb-amr-pipeline:latest
+    volumes:
+      - ./data:/app/data
+      - ./results:/app/results
+      - ./logs:/app/logs
+      - ./config/config.yaml:/app/config/config.yaml
+    environment:
+      - THREADS=${THREADS:-8}
+      - OMP_NUM_THREADS=${THREADS:-8}
+    command: >
+      snakemake --use-conda --cores ${THREADS:-8} --jobs 1
+      tree_models dl_models --rerun-incomplete
+
+  # ---------------------------------------------------------------------------
+  # GPU-enabled training (NVIDIA only, optional)
+  # ---------------------------------------------------------------------------
+  train-gpu:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      platforms:
+        - linux/amd64
+    image: kleb-amr-pipeline:latest
+    profiles:
+      - gpu
+    volumes:
+      - ./data:/app/data
+      - ./results:/app/results
+      - ./logs:/app/logs
+      - ./config/config.yaml:/app/config/config.yaml
+    environment:
+      - THREADS=${THREADS:-8}
+      - NVIDIA_VISIBLE_DEVICES=all
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              count: 1
+              capabilities: [gpu]
+    command: >
+      snakemake --use-conda --cores ${THREADS:-8} --jobs 1 dl_models

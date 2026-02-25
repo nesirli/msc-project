@@ -246,12 +246,18 @@ def main():
         'importance': feature_importance
     }).sort_values('importance', ascending=False)
     
-    # Save results
+    # Save results with per-sample predictions for ensemble analysis
     results = {
         'cv_results': cv_results,
         'test_results': test_results,
         'cv_mean_f1': np.mean([r['f1'] for r in cv_results]),
-        'cv_std_f1': np.std([r['f1'] for r in cv_results])
+        'cv_std_f1': np.std([r['f1'] for r in cv_results]),
+        'test_predictions': {
+            'y_true': y_test.tolist(),
+            'y_pred': y_test_pred.tolist(),
+            'y_proba': y_test_prob.tolist(),
+            'sample_ids': test_merged['sample_id'].tolist() if 'sample_id' in test_merged.columns else []
+        }
     }
     
     with open(snakemake.output.results, 'w') as f:

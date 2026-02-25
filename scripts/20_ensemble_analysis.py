@@ -29,9 +29,9 @@ from utils.output_validation import OutputValidator
 warnings.filterwarnings('ignore')
 
 
-def load_model_predictions(results_dir, antibiotic, models=['xgboost', 'lightgbm']):
+def load_model_predictions(results_dir, antibiotic, models=['xgboost', 'lightgbm', 'cnn', 'sequence_cnn', 'dnabert']):
     """
-    Load actual model predictions from saved results.
+    Load actual per-sample model predictions from saved results.
     
     Args:
         results_dir: Results directory path
@@ -64,50 +64,36 @@ def load_model_predictions(results_dir, antibiotic, models=['xgboost', 'lightgbm
                 # Extract test results
                 test_results = results.get('test_results', {})
                 
-                if 'confusion_matrix' in test_results:
-                    # Reconstruct predictions from confusion matrix (approximate)
-                    cm = np.array(test_results['confusion_matrix'])
-                    n_samples = np.sum(cm)
+                # Load real per-sample predictions (saved by training scripts)
+                test_preds_data = results.get('test_predictions', {})
+                
+                if test_preds_data and 'y_pred' in test_preds_data and len(test_preds_data['y_pred']) > 0:
+                    predictions = np.array(test_preds_data['y_pred'])
+                    probabilities = np.array(test_preds_data['y_proba'])
+                    true_labels = np.array(test_preds_data['y_true'])
                     
-                    if n_samples > 0:
-                        # Create approximate predictions based on confusion matrix
-                        true_neg, false_pos = cm[0]
-                        false_neg, true_pos = cm[1]
-                        
-                        # Approximate test labels
-                        if model_data['test_labels'] is None:
-                            test_labels = np.concatenate([
-                                np.zeros(true_neg + false_pos),  # Actual negatives
-                                np.ones(false_neg + true_pos)    # Actual positives
-                            ])
-                            model_data['test_labels'] = test_labels
-                        
-                        # Approximate predictions
-                        predictions = np.concatenate([
-                            np.zeros(true_neg),      # Correctly predicted negatives
-                            np.ones(false_pos),      # False positives
-                            np.zeros(false_neg),     # False negatives
-                            np.ones(true_pos)        # Correctly predicted positives
-                        ])
-                        
-                        # Approximate probabilities using F1 and accuracy info
-                        f1_score = test_results.get('f1', 0.0)
-                        auc_score = test_results.get('auc', 0.5)
-                        
-                        # Simple approximation of probabilities
-                        probabilities = np.random.beta(
-                            a=max(1, auc_score * 10), 
-                            b=max(1, (1 - auc_score) * 10), 
-                            size=len(predictions)
-                        )
-                        
-                        # Adjust probabilities to match predictions
-                        probabilities = np.where(predictions == 1, 
-                                               np.clip(probabilities + 0.2, 0, 1),
-                                               np.clip(probabilities - 0.2, 0, 1))
-                        
-                        model_data['predictions'][model_name] = predictions
-                        model_data['probabilities'][model_name] = probabilities
+                    # For the first model with real labels, set test_labels
+                    if model_data['test_labels'] is None:
+                        model_data['test_labels'] = true_labels
+                    else:
+                        # Verify label consistency across models (tree models share same test set)
+                        if len(true_labels) == len(model_data['test_labels']):
+                            if not np.array_equal(true_labels, model_data['test_labels']):
+                                print(f"Warning: {model_name} has different test labels than previous models")
+                                print(f"  Skipping {model_name} to avoid misaligned predictions")
+                                continue
+                        else:
+                            print(f"Warning: {model_name} has {len(true_labels)} test samples "
+                                  f"vs {len(model_data['test_labels'])} from other models")
+                            print(f"  Skipping {model_name} (different test set size)")
+                            continue
+                    
+                    model_data['predictions'][model_name] = predictions
+                    model_data['probabilities'][model_name] = probabilities
+                    print(f"  Loaded {len(predictions)} real predictions for {model_name}")
+                else:
+                    print(f"  Warning: No per-sample predictions found for {model_name}")
+                    print(f"  (Re-run training scripts to generate per-sample predictions)")
                 
                 # Store performance metrics
                 model_data['cv_performance'][model_name] = {
