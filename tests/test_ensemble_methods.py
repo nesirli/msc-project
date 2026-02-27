@@ -55,31 +55,35 @@ class TestModelEnsembleInit:
         ensemble = ModelEnsemble(mock_models, model_weights=weights)
         assert ensemble.model_weights['xgboost'] == 2.0
 
-    def test_ensemble_methods_populated(self, mock_models):
+    @pytest.mark.parametrize(
+        "method_name",
+        [
+            pytest.param("simple_average", id="simple_avg"),
+            pytest.param("weighted_average", id="weighted_avg"),
+            pytest.param("majority_vote", id="majority"),
+        ],
+    )
+    def test_ensemble_methods_populated(self, mock_models, method_name):
         ensemble = ModelEnsemble(mock_models)
-        assert len(ensemble.ensemble_methods) > 0
-        assert 'simple_average' in ensemble.ensemble_methods
-        assert 'weighted_average' in ensemble.ensemble_methods
-        assert 'majority_vote' in ensemble.ensemble_methods
+        assert method_name in ensemble.ensemble_methods
 
 
 class TestPredictEnsemble:
-    def test_simple_average(self, mock_models, sample_x_data):
+    @pytest.mark.parametrize(
+        "method",
+        [
+            pytest.param("simple_average", id="simple_avg"),
+            pytest.param("weighted_average", id="weighted_avg"),
+            pytest.param("majority_vote", id="majority"),
+        ],
+    )
+    def test_valid_methods(self, mock_models, sample_x_data, method):
+        """Test that each ensemble method returns correct-length predictions."""
         ensemble = ModelEnsemble(mock_models)
-        preds, probas = ensemble.predict_ensemble(sample_x_data, method='simple_average')
+        preds, probas = ensemble.predict_ensemble(sample_x_data, method=method)
         assert len(preds) == 4
         assert len(probas) == 4
         assert all(p in [0, 1] for p in preds)
-
-    def test_weighted_average(self, mock_models, sample_x_data):
-        ensemble = ModelEnsemble(mock_models)
-        preds, probas = ensemble.predict_ensemble(sample_x_data, method='weighted_average')
-        assert len(preds) == 4
-
-    def test_majority_vote(self, mock_models, sample_x_data):
-        ensemble = ModelEnsemble(mock_models)
-        preds, probas = ensemble.predict_ensemble(sample_x_data, method='majority_vote')
-        assert len(preds) == 4
 
     def test_invalid_method_raises(self, mock_models, sample_x_data):
         ensemble = ModelEnsemble(mock_models)

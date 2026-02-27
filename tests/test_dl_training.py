@@ -39,28 +39,31 @@ class TestGetDevice:
 
 @pytest.mark.skipif(not torch_available, reason="PyTorch not installed")
 class TestComputeClassWeightsTensor:
-    def test_balanced_classes(self):
+    @pytest.mark.parametrize(
+        "labels, check",
+        [
+            pytest.param(
+                np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1]),
+                lambda w: abs(w[0].item() - w[1].item()) < 0.1,
+                id="balanced",
+            ),
+            pytest.param(
+                np.array([0] * 90 + [1] * 10),
+                lambda w: w[1].item() > w[0].item(),
+                id="imbalanced",
+            ),
+            pytest.param(
+                np.array([0, 0, 0, 0]),
+                lambda w: len(w) >= 1,
+                id="single_class",
+            ),
+        ],
+    )
+    def test_class_weights(self, labels, check):
         from utils.dl_training import compute_class_weights_tensor
-        labels = np.array([0, 0, 0, 0, 0, 1, 1, 1, 1, 1])
         weights = compute_class_weights_tensor(labels)
         assert isinstance(weights, torch.Tensor)
-        assert len(weights) == 2
-        # Balanced classes should have roughly equal weights
-        assert abs(weights[0].item() - weights[1].item()) < 0.1
-
-    def test_imbalanced_classes(self):
-        from utils.dl_training import compute_class_weights_tensor
-        labels = np.array([0] * 90 + [1] * 10)
-        weights = compute_class_weights_tensor(labels)
-        assert isinstance(weights, torch.Tensor)
-        # Minority class should have higher weight
-        assert weights[1].item() > weights[0].item()
-
-    def test_single_class(self):
-        from utils.dl_training import compute_class_weights_tensor
-        labels = np.array([0, 0, 0, 0])
-        weights = compute_class_weights_tensor(labels)
-        assert isinstance(weights, torch.Tensor)
+        assert check(weights)
 
 
 class TestLogFoldInfo:
