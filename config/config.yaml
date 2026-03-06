@@ -91,7 +91,7 @@ models:
 
 # --- Resource Allocation ---
 resources:
-  threads: 32  # Use all available cores for maximum performance
+  threads: 8
   # memory_gb removed - SPAdes will use available RAM without limits
   
 # --- Paths ---

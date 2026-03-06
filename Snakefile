@@ -60,6 +60,8 @@ rule all:
 # Preprocessing pipeline only (steps 1-5)
 rule preprocess:
     input:
+        "results/features/metadata_train_processed.csv",
+        "results/features/metadata_test_processed.csv",
         "results/qc/preassembly_multiqc.html",
         "results/qc/postassembly_multiqc.html"
 

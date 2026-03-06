@@ -135,6 +135,8 @@ rule fastqc_trimmed:
 def get_all_fastqc_trimmed(wildcards):
     """Get all trimmed FastQC outputs"""
     try:
+        if not os.path.exists("results/features/metadata_train_processed.csv") or not os.path.exists("results/features/metadata_test_processed.csv"):
+            return []
         train_df = pd.read_csv("results/features/metadata_train_processed.csv")
         test_df = pd.read_csv("results/features/metadata_test_processed.csv")
         
@@ -179,8 +181,13 @@ rule multiqc_processed:
         "logs/03_preassembly_qc/multiqc_processed.log"
     shell:
         """
-        multiqc {params.indir} -o {params.outdir} -n preassembly_multiqc 2> {log}
-        rm -rf results/qc/fastqc_trimmed results/qc/fastp results/qc/preassembly_multiqc_data 2>> {log}
+        if [ -d {params.indir} ] && [ "$(ls -A {params.indir} 2>/dev/null)" ]; then
+            multiqc {params.indir} -o {params.outdir} -n preassembly_multiqc 2> {log}
+            rm -rf results/qc/fastqc_trimmed results/qc/fastp results/qc/preassembly_multiqc_data 2>> {log}
+        else
+            echo "No FastQC files to process, creating empty report" > {log}
+            touch {output}
+        fi
         """
 
 rule preassembly_qc_all:

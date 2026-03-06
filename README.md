@@ -151,6 +151,8 @@ snakemake --use-conda --cores 32 interpretability
 
 ```bash
 # Install test dependencies
+python -m venv venv
+source venv/bin/activate
 pip install -r requirements-dev.txt
 
 # Run all tests
@@ -160,7 +162,6 @@ python -m pytest tests/ -v
 python -m pytest tests/ --cov=utils --cov-report=term-missing
 ```
 
-See [TESTING.md](TESTING.md) for detailed testing documentation.
 
 ## 📊 Pipeline Stages
 

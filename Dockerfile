@@ -101,7 +101,9 @@ echo "============================================================"
 # Auto-adjust threads in config if THREADS env var is set
 if [ -n "${THREADS:-}" ]; then
     echo "Setting threads to $THREADS"
-    sed -i "s/threads: .*/threads: $THREADS/" /app/config/config.yaml
+    sed "s/threads: .*/threads: $THREADS/" /app/config/config.yaml > /tmp/config.yaml \
+        && cat /tmp/config.yaml > /app/config/config.yaml \
+        && rm /tmp/config.yaml
 fi
 
 # Execute the provided command or default to snakemake

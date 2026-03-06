@@ -30,6 +30,7 @@ services:
       - ./logs:/app/logs
       # Mount config for easy editing without rebuild
       - ./config/config.yaml:/app/config/config.yaml
+      - ./.snakemake:/app/.snakemake
 
     environment:
       - THREADS=${THREADS:-8}
@@ -56,12 +57,10 @@ services:
   # Run tests
   # ---------------------------------------------------------------------------
   test:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      platforms:
-        - linux/amd64
     image: kleb-amr-pipeline:latest
+    depends_on:
+      pipeline:
+        condition: service_started
     volumes:
       - ./tests:/app/tests
       - ./utils:/app/utils
@@ -73,11 +72,6 @@ services:
   # Interactive development shell
   # ---------------------------------------------------------------------------
   dev:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      platforms:
-        - linux/amd64
     image: kleb-amr-pipeline:latest
     volumes:
       - .:/app
@@ -89,28 +83,19 @@ services:
   # Run individual pipeline stages
   # ---------------------------------------------------------------------------
   preprocess:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      platforms:
-        - linux/amd64
     image: kleb-amr-pipeline:latest
     volumes:
       - ./data:/app/data
       - ./results:/app/results
       - ./logs:/app/logs
       - ./config/config.yaml:/app/config/config.yaml
+      - ./.snakemake:/app/.snakemake
     environment:
       - THREADS=${THREADS:-8}
     command: >
-      snakemake --use-conda --cores ${THREADS:-8} --jobs 2 preprocess
+      snakemake --use-conda --cores ${THREADS:-8} --jobs 2 --keep-going --rerun-incomplete preprocess
 
   train:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      platforms:
-        - linux/amd64
     image: kleb-amr-pipeline:latest
     volumes:
       - ./data:/app/data
@@ -128,11 +113,6 @@ services:
   # GPU-enabled training (NVIDIA only, optional)
   # ---------------------------------------------------------------------------
   train-gpu:
-    build:
-      context: .
-      dockerfile: Dockerfile
-      platforms:
-        - linux/amd64
     image: kleb-amr-pipeline:latest
     profiles:
       - gpu

@@ -91,9 +91,14 @@ rule multiqc_postassembly:
         "logs/05_postassembly_qc/multiqc.log"
     shell:
         """
-        multiqc {params.indir}/quast {params.indir}/kraken2 \
-            -o {params.outdir} -n postassembly_multiqc 2> {log}
-        rm -rf results/qc/quast results/qc/kraken2 results/qc/postassembly_multiqc_data 2>> {log}
+        if [ -d {params.indir}/quast ] && [ "$(ls -A {params.indir}/quast 2>/dev/null)" ] && [ -d {params.indir}/kraken2 ] && [ "$(ls -A {params.indir}/kraken2 2>/dev/null)" ]; then
+            multiqc {params.indir}/quast {params.indir}/kraken2 \
+                -o {params.outdir} -n postassembly_multiqc 2> {log}
+            rm -rf results/qc/quast results/qc/kraken2 results/qc/postassembly_multiqc_data 2>> {log}
+        else
+            echo "No QUAST or Kraken2 files to process, creating empty report" > {log}
+            touch {output}
+        fi
         """
 
 rule postassembly_qc_all:
