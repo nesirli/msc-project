@@ -54,14 +54,31 @@ rule spades_assembly:
         "logs/04_assembly/spades_{sample}.log"
     shell:
         """
+        set +e  # Temporarily disable strict mode for cleanup operations
+        
+        # CRITICAL: Use temporary directory in container, not external SSD
+        # External SSDs on macOS have extended attributes that break SPAdes
+        SPADES_TMP="/tmp/spades_$$.tmp"
+        SPADES_OUT="/tmp/spades_$$.out"
+        mkdir -p "$SPADES_TMP" "$SPADES_OUT"
+        
+        # Clean up any macOS resource fork files that can break SPAdes in Docker
+        # These files have extended attributes that cause "Operation not permitted" errors
+        find $CONDA_PREFIX -name "._*" -type f -delete 2>/dev/null || true
+        find /app/.snakemake -name "._*" -type f -delete 2>/dev/null || true
+        find /tmp -name "._*" -type f -delete 2>/dev/null || true
+        find /opt/conda -name "._*" -type f -delete 2>/dev/null || true
+        
+        set -e  # Re-enable strict mode for actual work
+        
         # Check if we have sufficient reads for assembly
         reads_r1=$(zcat {input.r1} | wc -l)
         reads_r2=$(zcat {input.r2} | wc -l)
         min_reads=1000
         
         if [ $reads_r1 -lt $min_reads ] || [ $reads_r2 -lt $min_reads ]; then
-            echo "ERROR: Insufficient reads for {wildcards.sample}: R1=$reads_r1 R2=$reads_r2 lines" | tee {log}
-            echo "Minimum required: $min_reads lines (250 reads)" | tee -a {log}
+            echo "ERROR: Insufficient reads for {wildcards.sample}: R1=$reads_r1 R2=$reads_r2 lines" | tee logs/04_assembly/spades_{wildcards.sample}.log
+            echo "Minimum required: $min_reads lines (250 reads)" | tee -a logs/04_assembly/spades_{wildcards.sample}.log
             
             # Create empty assembly file to mark sample as failed
             echo ">failed_assembly_insufficient_data" > {output.assembly}
@@ -69,25 +86,31 @@ rule spades_assembly:
             
             # Clean up
             rm -f {input.r1} {input.r2}
+            rm -rf "$SPADES_TMP" "$SPADES_OUT" 2>/dev/null || true
             exit 0
         fi
         
+        # Run SPAdes with output in /tmp (container) instead of mounted external SSD
+        # This completely avoids the extended attribute permission errors
         spades.py -1 {input.r1} -2 {input.r2} \
-            -o {params.outdir} \
+            -o "$SPADES_OUT" \
             -t {threads} \
+            --tmp-dir "$SPADES_TMP" \
             --isolate \
             --only-assembler \
-            -k 21,33,55 2> {log}
+            -k 21,33 2> {log}
         
-        if [ -f {params.outdir}/contigs.fasta ]; then
-            cp {params.outdir}/contigs.fasta {output.assembly}
+        # Copy results back to external SSD
+        if [ -f "$SPADES_OUT/contigs.fasta" ]; then
+            cp "$SPADES_OUT/contigs.fasta" {output.assembly}
         else
             echo "ERROR: SPAdes failed to produce contigs.fasta for {wildcards.sample}" | tee -a {log}
             echo ">failed_assembly_spades_error" > {output.assembly}
             echo "NNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNNN" >> {output.assembly}
         fi
         
-        rm -rf {params.outdir}
+        # Clean up temp directories
+        rm -rf "$SPADES_TMP" "$SPADES_OUT" 2>/dev/null || true
         
         # Immediately delete downsampled files to save disk space
         rm -f {input.r1} {input.r2}

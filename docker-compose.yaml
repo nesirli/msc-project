@@ -28,8 +28,11 @@ services:
       - ./data:/app/data
       - ./results:/app/results
       - ./logs:/app/logs
-      # Mount config for easy editing without rebuild
-      - ./config/config.yaml:/app/config/config.yaml
+      # Mount snakemake files for easy editing without rebuild
+      - ./Snakefile:/app/Snakefile
+      - ./rules:/app/rules
+      - ./scripts:/app/scripts
+      - ./config:/app/config
       - ./.snakemake:/app/.snakemake
 
     environment:
@@ -50,8 +53,9 @@ services:
 
     # Default: run the full pipeline
     command: >
-      snakemake --use-conda --cores ${THREADS:-8} --jobs 4
-      --rerun-incomplete --keep-going
+      bash -c "snakemake --unlock || true &&
+               snakemake --use-conda --cores ${THREADS:-8} --jobs 4
+               --rerun-incomplete --keep-going"
 
   # ---------------------------------------------------------------------------
   # Run tests
@@ -88,26 +92,40 @@ services:
       - ./data:/app/data
       - ./results:/app/results
       - ./logs:/app/logs
-      - ./config/config.yaml:/app/config/config.yaml
+      - ./Snakefile:/app/Snakefile
+      - ./rules:/app/rules
+      - ./scripts:/app/scripts
+      - ./config:/app/config
       - ./.snakemake:/app/.snakemake
     environment:
       - THREADS=${THREADS:-8}
     command: >
-      snakemake --use-conda --cores ${THREADS:-8} --jobs 2 --keep-going --rerun-incomplete preprocess
+      bash -c "snakemake --unlock || true &&
+               snakemake --use-conda --cores ${THREADS:-8} --jobs 2 --keep-going --rerun-incomplete preprocess"
 
   train:
     image: kleb-amr-pipeline:latest
+    depends_on:
+      pipeline:
+        condition: service_completed_successfully
     volumes:
       - ./data:/app/data
       - ./results:/app/results
       - ./logs:/app/logs
-      - ./config/config.yaml:/app/config/config.yaml
+      - ./Snakefile:/app/Snakefile
+      - ./rules:/app/rules
+      - ./scripts:/app/scripts
+      - ./config:/app/config
+      - ./.snakemake:/app/.snakemake
     environment:
       - THREADS=${THREADS:-8}
       - OMP_NUM_THREADS=${THREADS:-8}
+      - MKL_NUM_THREADS=${THREADS:-8}
+      - NUMEXPR_NUM_THREADS=${THREADS:-8}
     command: >
-      snakemake --use-conda --cores ${THREADS:-8} --jobs 1
-      tree_models dl_models --rerun-incomplete
+      bash -c "snakemake --unlock || true &&
+               snakemake --use-conda --cores ${THREADS:-8} --jobs 1 --rerun-incomplete
+               prepare_training_data tree_models dl_models interpretability ensemble_summary"
 
   # ---------------------------------------------------------------------------
   # GPU-enabled training (NVIDIA only, optional)
@@ -120,7 +138,7 @@ services:
       - ./data:/app/data
       - ./results:/app/results
       - ./logs:/app/logs
-      - ./config/config.yaml:/app/config/config.yaml
+      - ./config:/app/config
     environment:
       - THREADS=${THREADS:-8}
       - NVIDIA_VISIBLE_DEVICES=all
@@ -132,4 +150,5 @@ services:
               count: 1
               capabilities: [gpu]
     command: >
-      snakemake --use-conda --cores ${THREADS:-8} --jobs 1 dl_models
+      bash -c "snakemake --unlock || true &&
+               snakemake --use-conda --cores ${THREADS:-8} --jobs 1 dl_models"

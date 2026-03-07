@@ -57,13 +57,27 @@ rule all:
         expand("results/ensemble/{antibiotic}_ensemble_analysis.json", antibiotic=ANTIBIOTICS),
         "results/ensemble/ensemble_summary_report.json"
 
-# Preprocessing pipeline only (steps 1-5)
+# Preprocessing pipeline only (steps 1-10)
 rule preprocess:
     input:
+        # Metadata (rule 01)
         "results/features/metadata_train_processed.csv",
         "results/features/metadata_test_processed.csv",
+        # QC (rules 03, 05)
         "results/qc/preassembly_multiqc.html",
-        "results/qc/postassembly_multiqc.html"
+        "results/qc/postassembly_multiqc.html",
+        # AMR and SNP analysis (rules 06-07)
+        "results/amr/combined_amrfinder.csv",
+        "results/snp/combined_snps.csv",
+        # Feature matrix (rule 08)
+        expand("results/features/{antibiotic}_train.csv", antibiotic=ANTIBIOTICS),
+        expand("results/features/{antibiotic}_test.csv", antibiotic=ANTIBIOTICS),
+        # Feature selection (rule 09)
+        expand("results/features/{antibiotic}_train_selected.csv", antibiotic=ANTIBIOTICS),
+        expand("results/features/{antibiotic}_test_selected.csv", antibiotic=ANTIBIOTICS),
+        # Batch correction (rule 10)
+        expand("results/features/{antibiotic}_train_batch_corrected.csv", antibiotic=ANTIBIOTICS),
+        expand("results/features/{antibiotic}_test_batch_corrected.csv", antibiotic=ANTIBIOTICS)
 
 # Feature extraction pipeline (steps 6-10) 
 rule feature_extraction:

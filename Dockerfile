@@ -39,6 +39,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 # Set working directory
 WORKDIR /app
 
+# Remove any macOS resource fork files that might cause permission errors
+# (SPAdes fails when it can't chmod ._* files in conda environments)
+RUN find /app -name "._*" -type f -delete 2>/dev/null || true
+
 # ---------------------------------------------------------------------------
 # Stage 1: Install Snakemake
 # ---------------------------------------------------------------------------
@@ -60,7 +64,8 @@ RUN for env_file in /app/envs/*.yaml; do \
         mamba env create -f "$env_file" -n "snakemake-$env_name" || \
         echo "WARNING: Failed to create $env_name (will be created at runtime)"; \
     done && \
-    mamba clean -afy
+    mamba clean -afy && \
+    find /app -name "._*" -type f -delete 2>/dev/null || true
 
 # ---------------------------------------------------------------------------
 # Stage 3: Copy pipeline code
@@ -105,6 +110,10 @@ if [ -n "${THREADS:-}" ]; then
         && cat /tmp/config.yaml > /app/config/config.yaml \
         && rm /tmp/config.yaml
 fi
+
+# Final cleanup: remove any remaining macOS resource fork files that could cause SPAdes errors
+# This catches any files that may have been created during conda environment unpacking
+find /app/.snakemake /opt/conda -name "._*" -type f -delete 2>/dev/null || true
 
 # Execute the provided command or default to snakemake
 exec "$@"
