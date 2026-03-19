@@ -2,7 +2,7 @@
 Step 08: Create Feature Matrix
 Combine AMR genes + SNPs into binary presence/absence matrix
 Create 4 datasets (one per antibiotic) with train/test splits
-Run independently: snakemake --use-conda --cores 4 -s rules/08_feature_matrix.smk
+Run independently: snakemake --use-conda --cores 4 -s rules/08_feature_matrix.smk feature_matrix_all
 """
 
 configfile: "config/config.yaml"

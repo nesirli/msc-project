@@ -1,7 +1,7 @@
 """
 Step 05: Post-assembly QC
 QUAST for assembly metrics, Kraken2 for contamination screening
-Run independently: snakemake --use-conda --cores 8 -s rules/05_postassembly_qc.smk
+Run independently: snakemake --use-conda --cores 8 -s rules/05_postassembly_qc.smk postassembly_qc_all
 """
 
 import pandas as pd
@@ -41,10 +41,16 @@ rule quast_qc:
         "logs/05_postassembly_qc/quast_{sample}.log"
     shell:
         """
-        quast.py {input.assembly} -o {params.outdir} \
-            --min-contig {params.min_contig} -t {threads} 2> {log}
+        if grep -q "failed_assembly" {input.assembly}; then
+            echo "Skipping failed assembly {wildcards.sample}" > {log}
+            mkdir -p {params.outdir}
+            touch {output.report}
+        else
+            quast.py {input.assembly} -o {params.outdir} \
+                --min-contig {params.min_contig} -t {threads} 2> {log}
+        fi
         """
-
+        
 rule kraken2_contamination:
     input:
         assembly="data/assemblies/{sample}_assembled.fasta",

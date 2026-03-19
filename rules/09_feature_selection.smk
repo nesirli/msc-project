@@ -2,7 +2,7 @@
 Step 09: Advanced Feature Selection
 Multi-stage feature selection: variance filtering, SNP genomic grouping, 
 AMR gene prioritization, and DDG-like statistical selection with FDR correction
-Run independently: snakemake --use-conda --cores 4 -s rules/09_feature_selection.smk
+Run independently: snakemake --use-conda --cores 4 -s rules/09_feature_selection.smk feature_selection_all
 """
 
 configfile: "config/config.yaml"

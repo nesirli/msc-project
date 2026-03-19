@@ -2,7 +2,7 @@
 Step 10: Batch Effect Assessment and Correction
 PCA visualization to assess batch effects from Year, Location, Isolation_source, SNP_cluster
 Apply ComBat correction if needed
-Run independently: snakemake --use-conda --cores 4 -s rules/10_batch_correction.smk
+Run independently: snakemake --use-conda --cores 4 -s rules/10_batch_correction.smk batch_correction_all
 """
 
 configfile: "config/config.yaml"

@@ -10,6 +10,10 @@ import numpy as np
 import matplotlib.pyplot as plt
 from imblearn.over_sampling import SMOTE
 from pathlib import Path
+import sys
+import os
+
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), ".."))
 from utils.class_balancing import get_imbalance_strategy, apply_sampling_strategy
 
 def main():

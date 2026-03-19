@@ -1,7 +1,7 @@
 """
 Step 11: Prepare Training Data for All Models
 Calculate class weights and prepare data for consistent class weighting strategy
-Run independently: snakemake --use-conda --cores 4 -s rules/11_prepare_training_data.smk
+Run independently: snakemake --use-conda --cores 4 -s rules/11_prepare_training_data.smk prepare_training_data_all
 """
 
 configfile: "config/config.yaml"

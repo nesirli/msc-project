@@ -1,0 +1,29 @@
+{
+  "n_train_samples": 434,
+  "n_test_samples": 87,
+  "n_features": 321,
+  "pca_variance_explained": [
+    0.07245128478335283,
+    0.048624022940390296,
+    0.0357823033669868,
+    0.030319946365398982,
+    0.02521759413554859,
+    0.02475501219700332,
+    0.021046855327709765,
+    0.018511375744094692,
+    0.017852777597323566,
+    0.016896876464740095
+  ],
+  "batch_effects": {},
+  "correction_strategy": {
+    "correction_needed": false,
+    "problematic_batches": [],
+    "recommendation": "none"
+  },
+  "files_created": {
+    "plots_directory": "results/batch_correction",
+    "summary_plot": "results/batch_correction/batch_effects_summary.png",
+    "main_output_plot": "results/batch_correction/ciprofloxacin_batch_effects.png",
+    "individual_pca_plots": []
+  }
+}

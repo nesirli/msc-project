@@ -1,7 +1,7 @@
 """
 Step 18: DNABERT Training with PyTorch
 Trains transformer-based model on DNA sequences from balanced samples
-Run independently: snakemake --use-conda --cores 8 -s rules/18_train_dnabert.smk
+Run independently: snakemake --use-conda --cores 4 -s rules/18_train_dnabert.smk train_dnabert_all
 """
 
 configfile: "config/config.yaml"
@@ -19,15 +19,12 @@ rule train_dnabert:
     params:
         cv_folds=config["models"]["cv_folds"],
         random_state=config["models"]["random_state"],
-        epochs=20,
-        batch_size=16,
-        learning_rate=2e-5,
-        d_model=128,
-        n_heads=8,
-        n_layers=4,
-        dropout=0.1,
-        weight_decay=0.01,
-        patience=5
+        epochs=config["models"]["transformer"]["epochs"],
+        batch_size=config["models"]["transformer"]["batch_size"],
+        learning_rate=config["models"]["transformer"]["learning_rate"],
+        dropout=config["models"]["transformer"]["dropout"],
+        weight_decay=config["models"]["transformer"]["weight_decay"],
+        patience=config["models"]["transformer"]["patience"]
     conda:
         "../envs/transformer.yaml"
     threads: config["resources"]["threads"]

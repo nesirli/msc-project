@@ -1,301 +1,138 @@
 # =============================================================================
-# AMR K. pneumoniae Prediction Pipeline - .gitignore
-# Containerized Bioinformatics/ML Project
+# AMR K. pneumoniae Prediction Pipeline
 # =============================================================================
 
 # --- Python ---
 __pycache__/
 *.py[cod]
-*$py.class
 *.so
+*.egg
+*.egg-info/
 .Python
 build/
-develop-eggs/
 dist/
-downloads/
-eggs/
 .eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.egg
-MANIFEST
-*.pyc
-*.pyo
-*.pyd
 
-
-# --- Jupyter Notebooks ---
-.ipynb_checkpoints
-*/.ipynb_checkpoints/*
+# --- Jupyter ---
 *.ipynb
+.ipynb_checkpoints/
 
-# --- Virtual Environments ---
+# --- Virtual environments ---
 .env
 .venv
 env/
 venv/
-ENV/
-env.bak/
-venv.bak/
 .conda/
 conda-meta/
 
-# --- IDEs and Editors ---
+# --- IDEs ---
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
+
+# --- macOS ---
 .DS_Store
-.DS_Store?
+.AppleDouble
 ._*
 .Spotlight-V100
 .Trashes
-ehthumbs.db
-Thumbs.db
 
-# --- Google Cloud Platform ---
-# Service account keys and credentials
-*.json.key
-service-account.json
-gcp-credentials.json
-.gcp/
-.google/
-
-
-# Cloud Build logs
-cloudbuild-logs/
-
-# --- Snakemake ---
+# --- Snakemake runtime ---
 .snakemake/
-.snakemake
-logs/
 benchmarks/
 slurm-*.out
 
-# Snakemake profiles (keep examples)
-profiles/*/config.yaml.local
+# --- Logs (runtime, not results) ---
+logs/
 
-# --- Conda/Mamba Environments ---
-.conda/
-.mamba/
-envs/*/
-**/envs/*/
+# =============================================================================
+# LARGE DATA FILES — exclude all raw/processed/intermediate sequencing data
+# =============================================================================
 
-# --- Large Data Files ---
-# Based on analysis: current dataset ~109GB, full dataset ~1.1-1.3TB
-# These files are too large for Git and should be stored in GCS/S3
-
-# Raw sequencing data (largest files: ~86GB for 120 samples)
+# Raw reads (downloaded from SRA — reproducible via step 02)
 data/raw/
-data/processed/*.fastq.gz
-data/processed/*.fq.gz
-data/processed/*.fastq
-data/processed/*.fq
-data/processed/*.sra
-data/processed/*.bam
-data/processed/*.sam
-data/processed/*.vcf.gz
-data/processed/*.vcf
 
-# Assembly files (moderate size: ~652MB for 120 samples)
-data/assemblies/*.fasta
-data/assemblies/*.fa
-data/assemblies/*.fna
-data/assemblies/*.gfa
+# Trimmed/processed reads (reproduced by step 03)
+data/processed/
 
-# Large intermediate files
-data/intermediate/
-data/temp/
-data/cache/
+# Assembly FASTA files (6.3GB — reproduced by step 04)
+data/assemblies/
 
-# Reference genomes and databases
+# SNP/VCF files (10-13MB each × 1184 samples — reproduced by step 07)
+data/snp/
+
+# AMR analysis outputs (reproduced by step 06)
+data/amr/
+
+# Reference databases (downloaded, not committed)
+data/reference/kraken2_db/
 data/reference/*.fasta
 data/reference/*.fa
 data/reference/*.fna
 data/reference/*.gz
-data/reference/kraken2_db/
 data/reference/*.amb
 data/reference/*.ann
 data/reference/*.bwt
 data/reference/*.pac
 data/reference/*.sa
+data/reference/*.fai
 
+# =============================================================================
+# LARGE RESULTS FILES — exclude binary/large intermediate outputs
+# =============================================================================
 
-# Model checkpoints and weights
-checkpoints/
-saved_models/
-*.ckpt
-*.pt
-*.pth
-model_weights/
-best_model/
+# Feature matrices (NPZ files — large binary arrays)
+results/features/deep_models/*.npz
+results/features/*.npz
 
+# Trained model weights (large binary — not needed for reproducibility)
+results/models/**/*.pt
+results/models/**/*.pkl
 
-# Temporary model outputs
-*.tmp
-temp/
-tmp/
+# QC HTML reports (large, regenerable)
+results/qc/*.html
+results/qc/**/*.html
+results/qc/fastqc_*/
+results/qc/fastp/
 
-# --- HuggingFace Cache ---
-.cache/huggingface/
+# =============================================================================
+# KEEP — explicitly include important small files
+# =============================================================================
+
+# Metadata (small, essential)
+!data/metadata.csv
+!data/reference/genome_size.txt
+
+# All results JSON (model metrics, summaries — small and important)
+!results/**/*.json
+
+# Feature CSVs (processed features — moderate size, important)
+!results/features/**/*.csv
+!results/features/metadata_*.csv
+
+# Model performance plots
+!results/models/**/*.png
+!results/models/**/*.csv
+
+# QC summary reports (keep final MultiQC outputs)
+!results/qc/postassembly_multiqc.html
+!results/qc/preassembly_multiqc.html
+!results/qc/raw_multiqc.html
+
+# Interpretability and ensemble results
+!results/interpretability/
+!results/ensemble/
+
+# HuggingFace cache (large, downloaded on demand)
+.cache/
 transformers_cache/
-.transformers_cache/
 
-# --- Logs and Outputs ---
-logs/**/*.log
-logs/**/*.out
-logs/**/*.err
-*.log
-*.out
-*.err
-
-# Slurm outputs
-slurm-*.out
-slurm-*.err
-
-
-# Temporary analysis files
-scratch/
-temp_analysis/
-debug_output/
-
-# --- Configuration Secrets ---
-# Keep config.yaml but ignore any secrets
-config/secrets.yaml
-config/local.yaml
-.env.local
-.secrets
-
-# --- Package Management ---
-# Conda
-environment.yml.lock
-conda-lock.yml
-*.conda
-
-# Pip
-requirements.txt.lock
-poetry.lock
-
-# --- Backup Files ---
+# Temporary files
+*.tmp
 *.bak
 *.backup
-*.orig
-*~
-
-# --- Operating System ---
-# macOS
-.AppleDouble
-.LSOverride
-Icon
-._*
-
-# Linux
-*~
-.fuse_hidden*
-.directory
-.Trash-*
-
-# Windows
-Thumbs.db
-Thumbs.db:encryptable
-ehthumbs.db
-ehthumbs_vista.db
-Desktop.ini
-$RECYCLE.BIN/
-
-# --- Miscellaneous ---
-.coverage
-.pytest_cache/
-.tox/
-.nox/
-htmlcov/
-.cache
-nosetests.xml
-coverage.xml
-*.cover
-*.py,cover
-
-# Profiling
-.prof
-
-# Documentation builds
-docs/_build/
-docs/build/
-site/
-
-# --- KEEP Important Files ---
-# Configuration files
-!config/config.yaml
-!envs/*.yaml
-!docker-compose.yml
-!Dockerfile
-!.dockerignore
-
-# Small reference files
-!data/reference/genome_size.txt
-!data/reference/reference_genome
-!data/reference/*.fai
-
-# Documentation
-!README.md
-!docs/*.md
-!*.md
-!CITATION.cff
-
-# Scripts and workflows
-!scripts/
-!rules/
-!utils/
-!Snakefile
-
-# Keep all small result summaries and publication-ready outputs
-!results/**/*.json
-!results/**/*.tsv
-!results/**/*.txt
-!results/**/*.md
-
-# Keep small CSV files (< 100MB), small plots, and metrics
-!results/**/*.csv
-!results/**/*.png
-!results/**/*.pdf
-!results/**/*.svg
-
-# Keep ensemble and interpretability results (small, important)
-!results/ensemble/
-!results/interpretability/
-!results/batch_correction/
-
-# Explicitly keep small AMR summaries
-!results/amr/**/*.json
-!results/amr/**/*.tsv
-!results/amr/**/*.csv
-!results/amr/**/*.txt
-
-# Keep model performance metrics and summaries
-!results/models/**/*.json
-!results/models/**/*.csv
-!results/models/**/*.txt
-!results/models/**/metrics/
-!results/models/**/plots/
-
-# Small example/test data only
-!data/metadata.csv
-
-# Cloud deployment configs (templates only, no secrets)
-!scripts/gcp/cloudbuild.yaml
-!scripts/gcp/*.sh
-
-# Keep plots if they're small
-!results/**/plots_complete.txt
-results/**/plots/*.png
-results/**/plots/*.pdf
-!results/**/plots/*.png.small
-!results/**/plots/*.pdf.small
+temp/
+tmp/
+scratch/results/snp/combined_snps.csv

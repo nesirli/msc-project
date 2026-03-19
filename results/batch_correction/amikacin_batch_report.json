@@ -1,0 +1,29 @@
+{
+  "n_train_samples": 403,
+  "n_test_samples": 77,
+  "n_features": 320,
+  "pca_variance_explained": [
+    0.06969330540864029,
+    0.049723278555753064,
+    0.03322173173099272,
+    0.030858161373466298,
+    0.02889846607843019,
+    0.02574981608304342,
+    0.022381656294436683,
+    0.019501285213378405,
+    0.018367064679305677,
+    0.017528855724991976
+  ],
+  "batch_effects": {},
+  "correction_strategy": {
+    "correction_needed": false,
+    "problematic_batches": [],
+    "recommendation": "none"
+  },
+  "files_created": {
+    "plots_directory": "results/batch_correction",
+    "summary_plot": "results/batch_correction/batch_effects_summary.png",
+    "main_output_plot": "results/batch_correction/amikacin_batch_effects.png",
+    "individual_pca_plots": []
+  }
+}

@@ -1,10 +1,15 @@
 """
 Step 16: 1D-CNN Training with PyTorch
-Trains 1D convolutional neural network on k-mer frequency spectra from balanced samples
-Run independently: snakemake --use-conda --cores 8 -s rules/16_train_1dcnn.smk
+Trains 1D convolutional neural network on k-mer frequency spectra
+Run independently: snakemake --use-conda --cores 8 -s rules/16_train_1dcnn.smk train_1dcnn_all
 """
 
 configfile: "config/config.yaml"
+
+rule train_1dcnn_all:
+    input:
+        expand("results/models/cnn/{antibiotic}_results.json",
+               antibiotic=config["antibiotics"])
 
 rule train_1dcnn:
     input:
@@ -18,12 +23,12 @@ rule train_1dcnn:
     params:
         cv_folds=config["models"]["cv_folds"],
         random_state=config["models"]["random_state"],
-        epochs=100,
-        batch_size=64,
-        learning_rate=0.0005,
-        dropout=0.3,
-        weight_decay=1e-4,
-        patience=15
+        epochs=config["models"]["cnn"]["epochs"],
+        batch_size=config["models"]["cnn"]["batch_size"],
+        learning_rate=config["models"]["cnn"]["learning_rate"],
+        dropout=config["models"]["cnn"]["dropout"],
+        weight_decay=config["models"]["cnn"]["weight_decay"],
+        patience=config["models"]["cnn"]["patience"]
     conda:
         "../envs/cnn.yaml"
     threads: config["resources"]["threads"]
@@ -31,7 +36,3 @@ rule train_1dcnn:
         "logs/16_train_1dcnn/{antibiotic}.log"
     script:
         "../scripts/16_train_1dcnn.py"
-
-rule train_1dcnn_all:
-    input:
-        expand("results/models/cnn/{antibiotic}_results.json", antibiotic=config["antibiotics"])

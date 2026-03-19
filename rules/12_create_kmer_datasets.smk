@@ -1,7 +1,7 @@
 """
 Step 12: K-mer Dataset Creation AFTER Balancing
 Efficiently creates k-mer datasets from only the selected balanced samples
-Run independently: snakemake --use-conda --cores 8 -s rules/12_create_kmer_datasets.smk
+Run independently: snakemake --use-conda --cores 4 -s rules/12_create_kmer_datasets.smk create_kmer_datasets_all
 """
 
 configfile: "config/config.yaml"

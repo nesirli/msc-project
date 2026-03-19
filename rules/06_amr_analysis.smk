@@ -1,7 +1,7 @@
 """
 Step 06: AMR Gene Detection with AMRFinderPlus
 Runs on assemblies to detect AMR genes (presence/absence)
-Run independently: snakemake --use-conda --cores 8 -s rules/06_amr_analysis.smk
+Run independently: snakemake --use-conda --cores 1 -s rules/06_amr_analysis.smk amr_analysis_all
 """
 
 import pandas as pd

@@ -1,7 +1,7 @@
 """
 Step 20: Ensemble Analysis of AMR prediction models
 Combines predictions from all 5 models and evaluates ensemble performance.
-Run independently: snakemake --use-conda --cores 4 -s rules/20_ensemble_analysis.smk
+Run independently: snakemake --use-conda --cores 4 -s rules/20_ensemble_analysis.smk ensemble_analysis_all
 """
 
 configfile: "config/config.yaml"

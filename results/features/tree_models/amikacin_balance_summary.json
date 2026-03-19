@@ -1,0 +1,30 @@
+{
+  "antibiotic": "amikacin",
+  "original_samples": 403,
+  "balanced_samples": 403,
+  "test_samples": 77,
+  "original_distribution": {
+    "0": 314,
+    "1": 89
+  },
+  "balanced_distribution": {
+    "0": 314,
+    "1": 89
+  },
+  "balance_method": "weighted_threshold_opt",
+  "imbalance_strategy": {
+    "method": "weighted_threshold_opt",
+    "ratio": 3.5280898876404496,
+    "details": "moderate_imbalance",
+    "sampling": null,
+    "use_focal_loss": false,
+    "optimize_threshold": true
+  },
+  "balance_applied": false,
+  "features_count": 320,
+  "class_weights": {
+    "0": 0.64171974522293,
+    "1": 2.264044943820225
+  },
+  "scale_pos_weight": 3.5280898876404496
+}

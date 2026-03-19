@@ -1,7 +1,7 @@
 """
 Step 14: XGBoost Training
 5-fold nested CV with hyperparameter tuning using balanced data
-Run independently: snakemake --use-conda --cores 8 -s rules/14_train_xgboost.smk
+Run independently: snakemake --use-conda --cores 8 -s rules/14_train_xgboost.smk train_xgboost_all
 """
 
 configfile: "config/config.yaml"

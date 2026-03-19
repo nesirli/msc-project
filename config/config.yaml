@@ -59,7 +59,7 @@ feature_selection:
 models:
   cv_folds: 5
   random_state: 42
-  use_geographic_cv: true  # Enable geographic-temporal cross-validation for DL models
+  use_geographic_cv: true
   
   xgboost:
     n_estimators: [100, 200, 500]
@@ -70,15 +70,18 @@ models:
     n_estimators: [100, 200, 500]
     max_depth: [3, 5, 7]
     learning_rate: [0.01, 0.1, 0.3]
-    num_leaves: [31, 63]  # Reduced from [31, 63, 127] for 33% faster training
+    num_leaves: [31, 63]
     
   cnn:
     kmer_size: 11
     filters: [32, 64, 128]
     kernel_size: [3, 5, 7]
     dropout: 0.3
-    epochs: 100
+    epochs: 50          # reduced from 100
     batch_size: 32
+    learning_rate: 0.0005
+    weight_decay: 0.0001
+    patience: 15
     
   transformer:
     read_length: 250
@@ -86,13 +89,15 @@ models:
     n_heads: 4
     n_layers: 2
     dropout: 0.1
-    epochs: 50
+    epochs: 7    
     batch_size: 16
+    patience: 5
+    learning_rate: 0.00005
+    weight_decay: 0.01    
 
 # --- Resource Allocation ---
 resources:
-  threads: 2
-  # memory_gb removed - SPAdes will use available RAM without limits
+  threads: 4
   
 # --- Paths ---
 paths:

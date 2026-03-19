@@ -1,0 +1,29 @@
+{
+  "n_train_samples": 417,
+  "n_test_samples": 99,
+  "n_features": 325,
+  "pca_variance_explained": [
+    0.07157894864388288,
+    0.048635743394431295,
+    0.03483850617636341,
+    0.031550651185216355,
+    0.027442337997449485,
+    0.024816309977700037,
+    0.0213271496864782,
+    0.018386402078184243,
+    0.017950728083283046,
+    0.016871944755796543
+  ],
+  "batch_effects": {},
+  "correction_strategy": {
+    "correction_needed": false,
+    "problematic_batches": [],
+    "recommendation": "none"
+  },
+  "files_created": {
+    "plots_directory": "results/batch_correction",
+    "summary_plot": "results/batch_correction/batch_effects_summary.png",
+    "main_output_plot": "results/batch_correction/meropenem_batch_effects.png",
+    "individual_pca_plots": []
+  }
+}

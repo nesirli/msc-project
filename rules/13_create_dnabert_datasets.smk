@@ -1,7 +1,7 @@
 """
 Step 13: DNABERT Dataset Creation AFTER Balancing
 Efficiently creates DNABERT datasets from only the selected balanced samples
-Run independently: snakemake --use-conda --cores 8 -s rules/13_create_dnabert_datasets.smk
+Run independently: snakemake --use-conda --cores 8 -s rules/13_create_dnabert_datasets.smk create_dnabert_datasets_all
 """
 
 configfile: "config/config.yaml"

@@ -1,7 +1,7 @@
 """
 Step 15: LightGBM Training
 5-fold nested CV with hyperparameter tuning using balanced data
-Run independently: snakemake --use-conda --cores 8 -s rules/15_train_lightgbm.smk
+Run independently: snakemake --use-conda --cores 8 -s rules/15_train_lightgbm.smk train_lightgbm_all
 """
 
 configfile: "config/config.yaml"

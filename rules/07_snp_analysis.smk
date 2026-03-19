@@ -1,7 +1,7 @@
 """
 Step 07: SNP Calling
 BWA alignment -> FreeBayes variant calling -> Quality filtering
-Run independently: snakemake --use-conda --cores 8 -s rules/07_snp_analysis.smk
+Run independently: snakemake --use-conda --cores 8 -s rules/07_snp_analysis.smk snp_analysis_all
 """
 
 import pandas as pd

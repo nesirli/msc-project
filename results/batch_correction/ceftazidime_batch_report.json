@@ -1,0 +1,29 @@
+{
+  "n_train_samples": 1044,
+  "n_test_samples": 74,
+  "n_features": 279,
+  "pca_variance_explained": [
+    0.0764252744185552,
+    0.04820253515640924,
+    0.03839798099245033,
+    0.03356592733782981,
+    0.03006914928460646,
+    0.026867800346854133,
+    0.020114535801503977,
+    0.018647023671578007,
+    0.018143091441067436,
+    0.015690683026839448
+  ],
+  "batch_effects": {},
+  "correction_strategy": {
+    "correction_needed": false,
+    "problematic_batches": [],
+    "recommendation": "none"
+  },
+  "files_created": {
+    "plots_directory": "results/batch_correction",
+    "summary_plot": "results/batch_correction/batch_effects_summary.png",
+    "main_output_plot": "results/batch_correction/ceftazidime_batch_effects.png",
+    "individual_pca_plots": []
+  }
+}

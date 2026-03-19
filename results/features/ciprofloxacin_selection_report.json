@@ -1,0 +1,10 @@
+{
+  "original_features": 1239465,
+  "selected_features": 321,
+  "reduction_ratio": 3861.2616822429904,
+  "amr_genes": 321,
+  "snp_features": 0,
+  "grouped_features": 0,
+  "final_sample_to_feature_ratio": 1.35202492211838,
+  "overfitting_risk_status": "REDUCED"
+}
