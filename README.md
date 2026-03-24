@@ -49,7 +49,7 @@ Docker eliminates all dependency/platform issues — bioinformatics tools like S
 ```bash
 # Clone repository
 git clone https://github.com/nesirli/msc-project.git
-cd kleb-amr-project
+cd msc-project
 
 # Build the image (first time takes ~30-60 min to create all conda envs)
 docker compose build
@@ -88,7 +88,7 @@ docker compose --profile gpu up train-gpu
 ```bash
 # Clone repository
 git clone https://github.com/nesirli/msc-project.git
-cd kleb-amr-project
+cd msc-project
 
 # Install Snakemake (if not already installed)
 conda create -n snakemake -c conda-forge -c bioconda snakemake=7.32
