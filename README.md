@@ -22,22 +22,6 @@ This pipeline implements a 20-stage workflow comparing four machine learning arc
 - ✅ Full reproducibility with conda environments
 - ✅ Optimized for high-performance computing
 
-## 🎓 Citation
-
-If you use this workflow in your research, please cite:
-
-```bibtex
-@mastersthesis{nasirli2025kleb,
-  author  = {Nasirli, Nasir},
-  title   = {Interpretable Deep-Learning and Ensemble Models for Predicting 
-             Multidrug Resistance in Klebsiella pneumoniae},
-  school  = {University of Birmingham},
-  year    = {2025},
-  type    = {MSc Bioinformatics Dissertation}
-}
-```
-
-See `CITATION.cff` for machine-readable citation metadata.
 
 ## 🚀 Quick Start
 
@@ -64,7 +48,7 @@ Docker eliminates all dependency/platform issues — bioinformatics tools like S
 
 ```bash
 # Clone repository
-git clone https://github.com/NasirNesirli/kleb-amr-project.git
+git clone https://github.com/nesirli/msc-project.git
 cd kleb-amr-project
 
 # Build the image (first time takes ~30-60 min to create all conda envs)
@@ -103,7 +87,7 @@ docker compose --profile gpu up train-gpu
 
 ```bash
 # Clone repository
-git clone https://github.com/NasirNesirli/kleb-amr-project.git
+git clone https://github.com/nesirli/msc-project.git
 cd kleb-amr-project
 
 # Install Snakemake (if not already installed)
@@ -200,7 +184,7 @@ The workflow consists of 20 interconnected stages:
 ## 📁 Project Structure
 
 ```
-kleb-amr-project/
+msc-project/
 ├── Snakefile                    # Master workflow orchestrator
 ├── run_max_parallel.sh          # Optimized parallel execution script
 ├── config/
@@ -354,7 +338,7 @@ Student ID: 2684202
 
 ## 🔗 Links
 
-- **GitHub:** https://github.com/NasirNesirli/kleb-amr-project
+- **GitHub:** https://github.com/nesirli/msc-project
 - **NCBI Pathogen Detection:** https://www.ncbi.nlm.nih.gov/pathogens/
 - **Dissertation:** See `thesis/final-dissertation.pdf`
 
