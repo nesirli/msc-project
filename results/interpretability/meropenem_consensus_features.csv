@@ -1,0 +1,51 @@
+feature,type,consensus_score,n_supporting_models,supporting_models,avg_rank,avg_importance
+silE,AMR Gene,48.5723,2,"xgboost, lightgbm",2.5,0.0015
+tet(A),AMR Gene,48.0839,2,"xgboost, lightgbm",3.0,0.0017
+catB3,AMR Gene,45.6041,2,"xgboost, lightgbm",5.5,0.0023
+merA,AMR Gene,39.6942,2,"xgboost, lightgbm",11.5,0.0049
+qnrS1,AMR Gene,39.1988,2,"xgboost, lightgbm",12.0,0.0051
+catA1,AMR Gene,34.2123,2,"xgboost, lightgbm",17.0,0.0062
+armA,AMR Gene,33.9533,2,"xgboost, lightgbm",17.5,0.0135
+blaCTX-M-15,AMR Gene,31.9593,2,"xgboost, lightgbm",19.5,0.0146
+tet(D),AMR Gene,29.7986,2,"xgboost, lightgbm",21.5,0.0101
+terE,AMR Gene,28.7161,2,"xgboost, lightgbm",23.0,0.0256
+sul2,AMR Gene,28.515,2,"xgboost, lightgbm",23.0,0.0184
+qnrB1,AMR Gene,28.3139,2,"xgboost, lightgbm",23.0,0.0112
+clpK,AMR Gene,27.3154,2,"xgboost, lightgbm",24.0,0.0117
+arr-2,AMR Gene,25.0381,1,lightgbm,1.0,0.0015
+gyrA_D87N,AMR Gene,24.5383,1,lightgbm,2.0,0.0016
+arr-3,AMR Gene,24.4345,2,"xgboost, lightgbm",27.0,0.0181
+blaTEM-1,AMR Gene,23.9771,2,"xgboost, lightgbm",27.5,0.0203
+dfrA50,AMR Gene,23.5361,1,xgboost,4.0,0.0015
+aph(3')-VIb,AMR Gene,23.0529,1,xgboost,5.0,0.0023
+blaOXA-181,AMR Gene,22.557,1,xgboost,6.0,0.0025
+mph(A),AMR Gene,22.0685,1,lightgbm,7.0,0.0031
+blaCMY-4,AMR Gene,22.0607,1,xgboost,7.0,0.0028
+aph(3')-Ia,AMR Gene,21.0721,1,xgboost,9.0,0.0034
+dfrA12,AMR Gene,21.067,1,lightgbm,9.0,0.0032
+aph(6)-Id,AMR Gene,21.0094,2,"xgboost, lightgbm",30.5,0.0249
+cmlA5,AMR Gene,20.571,1,lightgbm,10.0,0.0035
+blaSHV-12,AMR Gene,20.0773,1,xgboost,11.0,0.0039
+arsR,AMR Gene,20.0757,1,lightgbm,11.0,0.0038
+blaOXA-48,AMR Gene,19.5841,1,lightgbm,12.0,0.0043
+blaOXA-204,AMR Gene,19.5822,1,xgboost,12.0,0.0042
+gyrA_S83I,AMR Gene,19.5049,2,"xgboost, lightgbm",32.0,0.0266
+aph(3'')-Ib,AMR Gene,18.9853,2,"xgboost, lightgbm",32.5,0.0262
+oqxB25,AMR Gene,18.6048,1,xgboost,14.0,0.0057
+terD,AMR Gene,18.5978,1,lightgbm,14.0,0.0053
+blaOXA-10,AMR Gene,18.123,1,xgboost,15.0,0.0068
+terB,AMR Gene,18.1043,1,lightgbm,15.0,0.0058
+merP,AMR Gene,17.6296,1,lightgbm,16.0,0.0074
+blaSHV-28,AMR Gene,17.1181,1,xgboost,17.0,0.0069
+aadA2,AMR Gene,16.5204,2,"xgboost, lightgbm",35.0,0.0325
+blaOXA,AMR Gene,15.6849,1,lightgbm,20.0,0.0119
+arsA,AMR Gene,15.6153,1,xgboost,20.0,0.0074
+aac(3)-IIe,AMR Gene,15.1904,1,lightgbm,21.0,0.0127
+blaSHV-11,AMR Gene,14.7056,1,lightgbm,22.0,0.0142
+pcoA,AMR Gene,14.6176,1,xgboost,22.0,0.0081
+iroB,AMR Gene,14.2844,1,lightgbm,23.0,0.0203
+blaCTX-M-14,AMR Gene,14.1216,1,xgboost,23.0,0.0087
+blaTEM,AMR Gene,13.6271,1,xgboost,24.0,0.0094
+hsp20,AMR Gene,13.2885,1,lightgbm,25.0,0.0222
+merE,AMR Gene,13.1115,2,"xgboost, lightgbm",38.5,0.0489
+ybtP,AMR Gene,13.0722,2,"xgboost, lightgbm",38.5,0.0458
