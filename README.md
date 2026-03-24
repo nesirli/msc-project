@@ -186,7 +186,6 @@ The workflow consists of 20 interconnected stages:
 ```
 msc-project/
 ├── Snakefile                    # Master workflow orchestrator
-├── run_max_parallel.sh          # Optimized parallel execution script
 ├── config/
 │   └── config.yaml              # Pipeline configuration
 ├── rules/                       # Individual Snakemake rule modules (20 stages)
